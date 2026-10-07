@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.BorderPane?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml">
+    <top>
+        <Label text="Система управления кладбищем" styleClass="title"/>
+    </top>
+    <center>
+        <TabPane tabClosingPolicy="UNAVAILABLE">
+            <Tab text="Места">
+                <fx:include source="plots-tab.fxml"/>
+            </Tab>
+            <Tab text="Заявители">
+                <fx:include source="customers-tab.fxml"/>
+            </Tab>
+            <Tab text="Сотрудники">
+                <fx:include source="employees-tab.fxml"/>
+            </Tab>
+            <Tab text="Заявки">
+                <fx:include source="requests-tab.fxml"/>
+            </Tab>
+            <Tab text="Статистика">
+                <fx:include source="statistics-tab.fxml"/>
+            </Tab>
+        </TabPane>
+    </center>
+</BorderPane>

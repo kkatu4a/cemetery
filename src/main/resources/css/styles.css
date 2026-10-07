@@ -1,0 +1,10 @@
+.title {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-padding: 15;
+}
+
+.tab-content {
+    -fx-padding: 15;
+    -fx-spacing: 10;
+}
