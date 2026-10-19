@@ -8,3 +8,49 @@
     -fx-padding: 15;
     -fx-spacing: 10;
 }
+
+/* Кнопки действий */
+.button-primary {
+    -fx-background-color: #1976D2;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+.button-primary:hover {
+    -fx-background-color: #1565C0;
+}
+
+.button-danger {
+    -fx-background-color: #D32F2F;
+    -fx-text-fill: white;
+}
+.button-danger:hover {
+    -fx-background-color: #C62828;
+}
+
+/* Карточки аналитики */
+.metric-card {
+    -fx-background-color: #ffffff;
+    -fx-padding: 15;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);
+}
+
+.metric-title {
+    -fx-text-fill: #616161;
+    -fx-font-size: 13px;
+}
+
+.metric-value {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.metric-blue { -fx-text-fill: #1976D2; }
+.metric-amber { -fx-text-fill: #F57F17; }
+.metric-cyan { -fx-text-fill: #0097A7; }
+.metric-green { -fx-text-fill: #388E3C; }
+.metric-purple { -fx-text-fill: #7B1FA2; }
+.metric-teal { -fx-text-fill: #00796B; }
