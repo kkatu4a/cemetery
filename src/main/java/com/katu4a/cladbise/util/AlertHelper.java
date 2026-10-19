@@ -2,6 +2,7 @@ package com.katu4a.cladbise.util;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.stage.Window;
 
 import java.util.Optional;
 
@@ -11,7 +12,14 @@ public final class AlertHelper {
     }
 
     public static void showError(String message) {
+        showError(null, message);
+    }
+
+    public static void showError(Window owner, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR, message, ButtonType.OK);
+        if (owner != null) {
+            alert.initOwner(owner);
+        }
         alert.setTitle("Ошибка");
         alert.setHeaderText(null);
         alert.showAndWait();

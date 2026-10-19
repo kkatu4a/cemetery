@@ -10,4 +10,10 @@ public interface PlotService {
     List<Plot> findAll();
 
     List<Sector> findAllSectors();
+
+    Plot create(Plot plot);
+
+    Plot update(Plot plot);
+
+    void delete(int id);
 }

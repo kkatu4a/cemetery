@@ -8,3 +8,52 @@
     -fx-padding: 15;
     -fx-spacing: 10;
 }
+
+.form {
+    -fx-padding: 20;
+    -fx-spacing: 15;
+}
+
+.form-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.primary-button {
+    -fx-background-color: #2e6da4;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.primary-button:hover {
+    -fx-background-color: #265a88;
+}
+
+.danger-button {
+    -fx-background-color: #c9302c;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.danger-button:hover {
+    -fx-background-color: #ac2925;
+}
+
+.primary-button:disabled,
+.danger-button:disabled {
+    -fx-opacity: 0.5;
+}
+
+.text-field.invalid,
+.combo-box.invalid {
+    -fx-border-color: #c9302c;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 3;
+}
+
+.error-label {
+    -fx-text-fill: #c9302c;
+    -fx-wrap-text: true;
+}

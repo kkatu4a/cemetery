@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.katu4a.cladbise.controller.PlotFormController"
+      styleClass="form"
+      prefWidth="460">
+
+    <Label fx:id="titleLabel" styleClass="form-title"/>
+
+    <GridPane hgap="10" vgap="10">
+        <columnConstraints>
+            <ColumnConstraints minWidth="120" prefWidth="140"/>
+            <ColumnConstraints hgrow="ALWAYS"/>
+        </columnConstraints>
+
+        <Label text="Сектор" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="sectorCombo" maxWidth="Infinity"
+                  GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Label text="Ряд" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextField fx:id="rowField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Label text="Номер места" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <TextField fx:id="plotNumberField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+        <Label text="Статус" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="statusCombo" maxWidth="Infinity"
+                  GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+        <Label text="Длина, см" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+        <TextField fx:id="lengthField" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+        <Label text="Ширина, см" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+        <TextField fx:id="widthField" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+        <Label text="Координаты" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+        <TextField fx:id="coordinatesField" promptText="Необязательно"
+                   GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+    </GridPane>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button text="Сохранить" styleClass="primary-button" defaultButton="true"
+                onAction="#onSave"/>
+        <Button text="Отмена" cancelButton="true" onAction="#onCancel"/>
+    </HBox>
+</VBox>
