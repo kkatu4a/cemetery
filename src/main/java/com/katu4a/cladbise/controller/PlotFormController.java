@@ -1,5 +1,6 @@
 package com.katu4a.cladbise.controller;
 
+
 import com.katu4a.cladbise.model.Plot;
 import com.katu4a.cladbise.model.Sector;
 import com.katu4a.cladbise.service.PlotService;
@@ -15,10 +16,11 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.StringConverter;
+import com.katu4a.cladbise.util.SavableForm;
 
 import java.util.List;
 
-public class PlotFormController {
+public class PlotFormController implements SavableForm {
 
     private static final String INVALID_STYLE = "invalid";
 
@@ -89,6 +91,7 @@ public class PlotFormController {
         }
     }
 
+    @Override
     public boolean isSaved() {
         return saved;
     }
