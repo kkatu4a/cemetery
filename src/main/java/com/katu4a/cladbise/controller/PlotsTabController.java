@@ -6,27 +6,37 @@ import com.katu4a.cladbise.service.PlotService;
 import com.katu4a.cladbise.service.StubPlotService;
 import com.katu4a.cladbise.service.ValidationException;
 import com.katu4a.cladbise.util.AlertHelper;
+import com.katu4a.cladbise.util.FormDialog;
+import com.katu4a.cladbise.util.FormUtils;
+import com.katu4a.cladbise.util.PlotStatus;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
+import javafx.scene.control.TextField;
 
-import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class PlotsTabController {
+
+    private static final String SORT_SECTOR = "Сектор";
+    private static final String SORT_ROW = "Ряд";
+    private static final String SORT_NUMBER = "Номер места";
+    private static final String SORT_STATUS = "Статус";
+    private static final String SORT_LENGTH = "Длина";
+    private static final String SORT_WIDTH = "Ширина";
 
     @FXML
     private TableView<Plot> plotsTable;
@@ -50,10 +60,22 @@ public class PlotsTabController {
     private Button deleteButton;
     @FXML
     private Label statusLabel;
+    @FXML
+    private TextField searchField;
+    @FXML
+    private ComboBox<PlotStatus> statusFilter;
+    @FXML
+    private ComboBox<Sector> sectorFilter;
+    @FXML
+    private ComboBox<String> sortCombo;
+    @FXML
+    private CheckBox descendingCheck;
 
     private final PlotService plotService = new StubPlotService();
 
     private final ObservableList<Plot> plots = FXCollections.observableArrayList();
+    private final FilteredList<Plot> filteredPlots = new FilteredList<>(plots);
+    private final SortedList<Plot> sortedPlots = new SortedList<>(filteredPlots);
     private final Map<Integer, String> sectorNames = new HashMap<>();
 
     @FXML
@@ -74,7 +96,8 @@ public class PlotsTabController {
                 new SimpleStringProperty(
                         cell.getValue().coordinates() == null ? "" : cell.getValue().coordinates()));
 
-        plotsTable.setItems(plots);
+        plotsTable.setItems(sortedPlots);
+        sortedPlots.comparatorProperty().bind(plotsTable.comparatorProperty());
 
         editButton.disableProperty().bind(
                 plotsTable.getSelectionModel().selectedItemProperty().isNull());
@@ -87,12 +110,34 @@ public class PlotsTabController {
             }
         });
 
+        statusFilter.setConverter(FormUtils.converter(PlotStatus::getValue));
+        statusFilter.setItems(FXCollections.observableArrayList(PlotStatus.values()));
+        sectorFilter.setConverter(FormUtils.converter(Sector::name));
+        sortCombo.setItems(FXCollections.observableArrayList(
+                SORT_SECTOR, SORT_ROW, SORT_NUMBER, SORT_STATUS, SORT_LENGTH, SORT_WIDTH));
+
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> applyFilter());
+        statusFilter.valueProperty().addListener((observable, oldValue, newValue) -> applyFilter());
+        sectorFilter.valueProperty().addListener((observable, oldValue, newValue) -> applyFilter());
+        sortCombo.valueProperty().addListener((observable, oldValue, newValue) -> applySort());
+        descendingCheck.selectedProperty().addListener((observable, oldValue, newValue) -> applySort());
+
         loadData();
     }
 
     @FXML
     private void onRefresh() {
         loadData();
+    }
+
+    @FXML
+    private void onReset() {
+        searchField.clear();
+        statusFilter.setValue(null);
+        sectorFilter.setValue(null);
+        sortCombo.setValue(null);
+        descendingCheck.setSelected(false);
+        plotsTable.getSortOrder().clear();
     }
 
     @FXML
@@ -139,38 +184,90 @@ public class PlotsTabController {
     }
 
     private boolean openForm(Plot existing) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/plot-form.fxml"));
-            Parent root = loader.load();
-            PlotFormController controller = loader.getController();
-            controller.init(plotService, existing);
+        return FormDialog.<PlotFormController>show(
+                plotsTable.getScene().getWindow(),
+                "/fxml/plot-form.fxml",
+                existing == null ? "Добавление места" : "Редактирование места",
+                controller -> controller.init(plotService, existing));
+    }
 
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/styles.css").toExternalForm());
+    private void applyFilter() {
+        String query = searchField.getText() == null ? "" : searchField.getText().trim().toLowerCase();
+        PlotStatus status = statusFilter.getValue();
+        Sector sector = sectorFilter.getValue();
 
-            Stage dialog = new Stage();
-            dialog.initOwner(plotsTable.getScene().getWindow());
-            dialog.initModality(Modality.APPLICATION_MODAL);
-            dialog.setTitle(existing == null ? "Добавление места" : "Редактирование места");
-            dialog.setResizable(false);
-            dialog.setScene(scene);
-            dialog.showAndWait();
+        filteredPlots.setPredicate(plot -> matches(plot, query, status, sector));
+        updateStatusLabel();
+    }
 
-            return controller.isSaved();
-        } catch (IOException e) {
-            AlertHelper.showError("Не удалось открыть форму: " + e.getMessage());
+    private boolean matches(Plot plot, String query, PlotStatus status, Sector sector) {
+        if (status != null && plot.status() != status) {
             return false;
         }
+        if (sector != null && plot.sectorId() != sector.id()) {
+            return false;
+        }
+        if (query.isEmpty()) {
+            return true;
+        }
+        List<String> searchable = List.of(
+                sectorNames.getOrDefault(plot.sectorId(), ""),
+                String.valueOf(plot.rowNumber()),
+                String.valueOf(plot.plotNumber()),
+                plot.status().getValue(),
+                plot.coordinates() == null ? "" : plot.coordinates());
+        return searchable.stream().anyMatch(value -> value.toLowerCase().contains(query));
+    }
+
+    private void applySort() {
+        String selected = sortCombo.getValue();
+        if (selected == null) {
+            plotsTable.getSortOrder().clear();
+            return;
+        }
+
+        TableColumn<Plot, ?> column = switch (selected) {
+            case SORT_SECTOR -> sectorColumn;
+            case SORT_ROW -> rowColumn;
+            case SORT_NUMBER -> plotNumberColumn;
+            case SORT_STATUS -> statusColumn;
+            case SORT_LENGTH -> lengthColumn;
+            case SORT_WIDTH -> widthColumn;
+            default -> null;
+        };
+        if (column == null) {
+            return;
+        }
+
+        column.setSortType(descendingCheck.isSelected()
+                ? TableColumn.SortType.DESCENDING
+                : TableColumn.SortType.ASCENDING);
+        plotsTable.getSortOrder().setAll(List.of(column));
+    }
+
+    private void updateStatusLabel() {
+        statusLabel.setText(String.format("Показано записей: %d из %d", filteredPlots.size(), plots.size()));
     }
 
     private void loadData() {
         try {
+            List<Sector> sectors = plotService.findAllSectors();
             sectorNames.clear();
-            for (Sector sector : plotService.findAllSectors()) {
+            for (Sector sector : sectors) {
                 sectorNames.put(sector.id(), sector.name());
             }
+
+            Sector previous = sectorFilter.getValue();
+            sectorFilter.setItems(FXCollections.observableArrayList(sectors));
+            if (previous != null) {
+                sectors.stream()
+                        .filter(sector -> sector.id() == previous.id())
+                        .findFirst()
+                        .ifPresent(sectorFilter::setValue);
+            }
+
             plots.setAll(plotService.findAll());
-            statusLabel.setText("Найдено записей: " + plots.size());
+            applyFilter();
         } catch (Exception e) {
             AlertHelper.showError("Не удалось загрузить места: " + e.getMessage());
         }
