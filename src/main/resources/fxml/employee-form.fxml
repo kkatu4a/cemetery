@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.katu4a.cladbise.controller.EmployeeFormController"
+      styleClass="form"
+      prefWidth="460">
+
+    <Label fx:id="titleLabel" styleClass="form-title"/>
+
+    <GridPane hgap="10" vgap="10">
+        <columnConstraints>
+            <ColumnConstraints minWidth="120" prefWidth="140"/>
+            <ColumnConstraints hgrow="ALWAYS"/>
+        </columnConstraints>
+
+        <Label text="ФИО" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="fullNameField" promptText="Фамилия Имя Отчество"
+                   GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Label text="Роль" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="roleCombo" maxWidth="Infinity"
+                  GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Label text="Логин" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <TextField fx:id="loginField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+        <Label text="Пароль" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <PasswordField fx:id="passwordField" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+        <CheckBox fx:id="activeCheck" text="Сотрудник активен"
+                  GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+    </GridPane>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button text="Сохранить" styleClass="primary-button" defaultButton="true"
+                onAction="#onSave"/>
+        <Button text="Отмена" cancelButton="true" onAction="#onCancel"/>
+    </HBox>
+</VBox>
