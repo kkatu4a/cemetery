@@ -1,11 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.katu4a.cladbise.controller.RequestsTabController"
-      styleClass="tab-content">
-    <Label text="Заявки: раздел в разработке"/>
+<VBox spacing="10" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.katu4a.cladbise.controller.RequestsTabController">
+    <padding>
+        <Insets top="12" right="12" bottom="12" left="12"/>
+    </padding>
+
+    <VBox spacing="10">
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Button text="+ Новая заявка" onAction="#handleAddRequest" styleClass="button-primary"/>
+            <Button text="Редактировать" onAction="#handleEditRequest"/>
+            <Button text="Удалить" onAction="#handleDeleteRequest" styleClass="button-danger"/>
+
+            <Separator orientation="VERTICAL"/>
+
+            <TextField fx:id="txtSearch" promptText="Поиск по ФИО умершего или заявителю..." prefWidth="280"/>
+
+            <Pane HBox.hgrow="ALWAYS"/>
+            <Button text="Экспорт (.xlsx / .csv)" onAction="#handleExport"/>
+            <Button text="Обновить" onAction="#loadData"/>
+        </HBox>
+
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="Статус:"/>
+            <ComboBox fx:id="cbStatusFilter" prefWidth="150"/>
+
+            <Label text="Период c:"/>
+            <DatePicker fx:id="dpDateFrom" prefWidth="130"/>
+            <Label text="по:"/>
+            <DatePicker fx:id="dpDateTo" prefWidth="130"/>
+
+            <Button text="Сбросить фильтры" onAction="#handleResetFilters"/>
+        </HBox>
+    </VBox>
+
+    <TableView fx:id="requestsTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colId" text="ID" prefWidth="55"/>
+            <TableColumn fx:id="colDeceased" text="ФИО Умершего" prefWidth="210"/>
+            <TableColumn fx:id="colCustomer" text="Заявитель" prefWidth="180"/>
+            <TableColumn fx:id="colPlot" text="Адрес места" prefWidth="200"/>
+            <TableColumn fx:id="colEmployee" text="Ответственный" prefWidth="160"/>
+            <TableColumn fx:id="colStatus" text="Статус" prefWidth="120"/>
+            <TableColumn fx:id="colDate" text="Дата создания" prefWidth="130"/>
+            <TableColumn fx:id="colCost" text="Стоимость (₽)" prefWidth="110"/>
+        </columns>
+        <placeholder>
+            <Label text="Заявки не найдены"/>
+        </placeholder>
+    </TableView>
 </VBox>

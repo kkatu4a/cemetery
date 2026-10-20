@@ -12,7 +12,7 @@ public final class AlertHelper {
     }
 
     public static void showError(String message) {
-        showError(null, message);
+        showError((Window) null, message);
     }
 
     public static void showError(Window owner, String message) {
@@ -25,10 +25,34 @@ public final class AlertHelper {
         alert.showAndWait();
     }
 
+    public static void showError(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
     public static void showInfo(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION, message, ButtonType.OK);
         alert.setTitle("Информация");
         alert.setHeaderText(null);
+        alert.showAndWait();
+    }
+
+    public static void showInfo(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    public static void showWarning(String message) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Внимание");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
         alert.showAndWait();
     }
 
@@ -38,5 +62,14 @@ public final class AlertHelper {
         alert.setHeaderText(null);
         Optional<ButtonType> result = alert.showAndWait();
         return result.isPresent() && result.get() == ButtonType.YES;
+    }
+
+    public static boolean showConfirmation(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.isPresent() && result.get() == ButtonType.OK;
     }
 }
