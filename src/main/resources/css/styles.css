@@ -9,24 +9,56 @@
     -fx-spacing: 10;
 }
 
-/* Кнопки действий */
-.button-primary {
-    -fx-background-color: #1976D2;
-    -fx-text-fill: white;
+.form {
+    -fx-padding: 20;
+    -fx-spacing: 15;
+}
+
+.form-title {
+    -fx-font-size: 18px;
     -fx-font-weight: bold;
 }
 
-.button-primary:hover {
+/* Кнопки стилей форм и таблиц */
+.primary-button, .button-primary {
+    -fx-background-color: #1976D2;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.primary-button:hover, .button-primary:hover {
     -fx-background-color: #1565C0;
 }
 
-.button-danger {
+.danger-button, .button-danger {
     -fx-background-color: #D32F2F;
     -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
 }
 
-.button-danger:hover {
+.danger-button:hover, .button-danger:hover {
     -fx-background-color: #C62828;
+}
+
+.primary-button:disabled,
+.danger-button:disabled,
+.button-primary:disabled,
+.button-danger:disabled {
+    -fx-opacity: 0.5;
+}
+
+.text-field.invalid,
+.combo-box.invalid {
+    -fx-border-color: #c9302c;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 3;
+}
+
+.error-label {
+    -fx-text-fill: #c9302c;
+    -fx-wrap-text: true;
 }
 
 /* Карточки аналитики */
