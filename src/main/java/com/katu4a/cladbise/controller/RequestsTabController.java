@@ -205,7 +205,9 @@ public class RequestsTabController {
             stage.setTitle(title);
             stage.initModality(Modality.WINDOW_MODAL);
             stage.initOwner(requestsTable.getScene().getWindow());
-            stage.setScene(new Scene(root));
+            Scene dialogScene = new Scene(root);
+            dialogScene.getStylesheets().add(getClass().getResource("/css/styles.css").toExternalForm());
+            stage.setScene(dialogScene);
             stage.setResizable(false);
             stage.showAndWait();
 

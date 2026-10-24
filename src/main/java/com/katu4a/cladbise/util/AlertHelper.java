@@ -4,11 +4,19 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Window;
 
+import java.net.URL;
 import java.util.Optional;
 
 public final class AlertHelper {
 
     private AlertHelper() {
+    }
+
+    private static void applyTheme(Alert alert) {
+        URL css = AlertHelper.class.getResource("/css/styles.css");
+        if (css != null && alert.getDialogPane() != null) {
+            alert.getDialogPane().getStylesheets().add(css.toExternalForm());
+        }
     }
 
     public static void showError(String message) {
@@ -22,6 +30,7 @@ public final class AlertHelper {
         }
         alert.setTitle("Ошибка");
         alert.setHeaderText(null);
+        applyTheme(alert);
         alert.showAndWait();
     }
 
@@ -30,6 +39,7 @@ public final class AlertHelper {
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
+        applyTheme(alert);
         alert.showAndWait();
     }
 
@@ -37,6 +47,7 @@ public final class AlertHelper {
         Alert alert = new Alert(Alert.AlertType.INFORMATION, message, ButtonType.OK);
         alert.setTitle("Информация");
         alert.setHeaderText(null);
+        applyTheme(alert);
         alert.showAndWait();
     }
 
@@ -45,6 +56,7 @@ public final class AlertHelper {
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
+        applyTheme(alert);
         alert.showAndWait();
     }
 
@@ -53,6 +65,7 @@ public final class AlertHelper {
         alert.setTitle("Внимание");
         alert.setHeaderText(null);
         alert.setContentText(message);
+        applyTheme(alert);
         alert.showAndWait();
     }
 
@@ -61,6 +74,7 @@ public final class AlertHelper {
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
+        applyTheme(alert);
         alert.showAndWait();
     }
 
@@ -68,6 +82,7 @@ public final class AlertHelper {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION, message, ButtonType.YES, ButtonType.NO);
         alert.setTitle("Подтверждение");
         alert.setHeaderText(null);
+        applyTheme(alert);
         Optional<ButtonType> result = alert.showAndWait();
         return result.isPresent() && result.get() == ButtonType.YES;
     }
@@ -77,6 +92,7 @@ public final class AlertHelper {
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
+        applyTheme(alert);
         Optional<ButtonType> result = alert.showAndWait();
         return result.isPresent() && result.get() == ButtonType.OK;
     }
