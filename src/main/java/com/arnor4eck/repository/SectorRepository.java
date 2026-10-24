@@ -64,7 +64,8 @@ public class SectorRepository extends AbstractJDBCRepository<Sector> {
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)){
             stmt.setString(1, value.name());
-            stmt.setTimestamp(2, Timestamp.valueOf(value.createdAt()));
+            LocalDateTime created = value.createdAt() != null ? value.createdAt() : LocalDateTime.now();
+            stmt.setTimestamp(2, Timestamp.valueOf(created));
             stmt.executeUpdate();
         }
     }
@@ -78,7 +79,8 @@ public class SectorRepository extends AbstractJDBCRepository<Sector> {
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)){
             stmt.setString(1, value.name());
-            stmt.setTimestamp(2, Timestamp.valueOf(value.createdAt()));
+            LocalDateTime created = value.createdAt() != null ? value.createdAt() : LocalDateTime.now();
+            stmt.setTimestamp(2, Timestamp.valueOf(created));
             stmt.setInt(3, value.id());
             stmt.executeUpdate();
         }

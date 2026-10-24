@@ -2,6 +2,7 @@ package com.katu4a.cladbise.controller;
 
 import com.katu4a.cladbise.model.Plot;
 import com.katu4a.cladbise.model.Sector;
+import com.katu4a.cladbise.service.DbPlotService;
 import com.katu4a.cladbise.service.PlotService;
 import com.katu4a.cladbise.service.StubPlotService;
 import com.katu4a.cladbise.service.ValidationException;
@@ -71,7 +72,7 @@ public class PlotsTabController {
     @FXML
     private CheckBox descendingCheck;
 
-    private final PlotService plotService = new StubPlotService();
+    private final PlotService plotService = new DbPlotService();
 
     private final ObservableList<Plot> plots = FXCollections.observableArrayList();
     private final FilteredList<Plot> filteredPlots = new FilteredList<>(plots);

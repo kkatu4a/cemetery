@@ -129,10 +129,12 @@ public class RequestService {
                 LocalDateTime.now()
         );
         requestRepo.save(req);
+        updatePlotStatusForRequest(row.getPlotId(), row.getStatus());
     }
 
     public void update(RequestRow row) throws SQLException {
         validate(row);
+        Optional<Request> oldReqOpt = requestRepo.get(row.getId());
         Request req = new Request(
                 row.getId(),
                 row.getCustomerId(),
@@ -148,10 +150,53 @@ public class RequestService {
                 row.getCreatedAt() != null ? row.getCreatedAt() : LocalDateTime.now()
         );
         requestRepo.update(req);
+
+        if (oldReqOpt.isPresent()) {
+            int oldPlotId = oldReqOpt.get().plotId();
+            if (oldPlotId != row.getPlotId()) {
+                syncPlotStatus(oldPlotId);
+            }
+        }
+        updatePlotStatusForRequest(row.getPlotId(), row.getStatus());
     }
 
     public void delete(int id) throws SQLException {
+        Optional<Request> reqOpt = requestRepo.get(id);
         requestRepo.delete(id);
+        if (reqOpt.isPresent()) {
+            syncPlotStatus(reqOpt.get().plotId());
+        }
+    }
+
+    private void updatePlotStatusForRequest(int plotId, RequestStatus status) throws SQLException {
+        Optional<Plot> plotOpt = plotRepo.get(plotId);
+        if (plotOpt.isPresent()) {
+            Plot p = plotOpt.get();
+            PlotStatus targetStatus = (status == RequestStatus.COMPLETED) ? PlotStatus.OCCUPIED :
+                    (status == RequestStatus.REJECTED) ? PlotStatus.FREE : PlotStatus.RESERVED;
+            if (p.status() != targetStatus) {
+                plotRepo.update(new Plot(p.id(), p.sectorId(), p.rowNumber(), p.plotNumber(), targetStatus, p.lengthCm(), p.widthCm(), p.coordinates()));
+            }
+        }
+    }
+
+    private void syncPlotStatus(int plotId) throws SQLException {
+        List<Request> plotRequests = requestRepo.getAll().stream()
+                .filter(r -> r.plotId() == plotId)
+                .toList();
+        Optional<Plot> plotOpt = plotRepo.get(plotId);
+        if (plotOpt.isPresent()) {
+            Plot p = plotOpt.get();
+            PlotStatus targetStatus = PlotStatus.FREE;
+            if (plotRequests.stream().anyMatch(r -> r.status() == RequestStatus.COMPLETED)) {
+                targetStatus = PlotStatus.OCCUPIED;
+            } else if (plotRequests.stream().anyMatch(r -> r.status() != RequestStatus.REJECTED)) {
+                targetStatus = PlotStatus.RESERVED;
+            }
+            if (p.status() != targetStatus) {
+                plotRepo.update(new Plot(p.id(), p.sectorId(), p.rowNumber(), p.plotNumber(), targetStatus, p.lengthCm(), p.widthCm(), p.coordinates()));
+            }
+        }
     }
 
     public List<ComboItem> getCustomersForCombo() throws SQLException {
@@ -271,14 +316,15 @@ public class RequestService {
             writer.println("ID;ФИО Умершего;Заявитель;Сотрудник;Адрес места;Статус;Стоимость (₽);Дата создания;Примечание");
             for (RequestRow r : rows) {
                 String createdStr = r.getCreatedAt() != null ? r.getCreatedAt().format(dtf) : "";
-                writer.printf("%d;\"%s\";\"%s\";\"%s\";\"%s\";\"%s\";%.2f;\"%s\";\"%s\"%n",
+                String costStr = String.format(Locale.US, "%.2f", r.getTotalCost() != null ? r.getTotalCost() : 0.0);
+                writer.printf("%d;\"%s\";\"%s\";\"%s\";\"%s\";\"%s\";%s;\"%s\";\"%s\"%n",
                         r.getId(),
-                        r.getDeceasedFullName() != null ? r.getDeceasedFullName() : "",
-                        r.getCustomerFullName() != null ? r.getCustomerFullName() : "",
-                        r.getEmployeeFullName() != null ? r.getEmployeeFullName() : "",
-                        r.getPlotAddress() != null ? r.getPlotAddress() : "",
+                        r.getDeceasedFullName() != null ? r.getDeceasedFullName().replace("\"", "\"\"") : "",
+                        r.getCustomerFullName() != null ? r.getCustomerFullName().replace("\"", "\"\"") : "",
+                        r.getEmployeeFullName() != null ? r.getEmployeeFullName().replace("\"", "\"\"") : "",
+                        r.getPlotAddress() != null ? r.getPlotAddress().replace("\"", "\"\"") : "",
                         r.getStatusRussian() != null ? r.getStatusRussian() : "",
-                        r.getTotalCost() != null ? r.getTotalCost() : 0.0,
+                        costStr,
                         createdStr,
                         r.getNote() != null ? r.getNote().replace("\"", "\"\"") : ""
                 );

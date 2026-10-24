@@ -69,7 +69,8 @@ public class CustomerRepository extends AbstractJDBCRepository<Customer> {
             stmt.setString(1, value.fullName());
             stmt.setString(2, value.phone());
             stmt.setString(3, value.email());
-            stmt.setTimestamp(4, Timestamp.valueOf(value.createdAt()));
+            LocalDateTime created = value.createdAt() != null ? value.createdAt() : LocalDateTime.now();
+            stmt.setTimestamp(4, Timestamp.valueOf(created));
             stmt.executeUpdate();
         }
     }
@@ -84,7 +85,8 @@ public class CustomerRepository extends AbstractJDBCRepository<Customer> {
             stmt.setString(1, value.fullName());
             stmt.setString(2, value.phone());
             stmt.setString(3, value.email());
-            stmt.setTimestamp(4, Timestamp.valueOf(value.createdAt()));
+            LocalDateTime created = value.createdAt() != null ? value.createdAt() : LocalDateTime.now();
+            stmt.setTimestamp(4, Timestamp.valueOf(created));
             stmt.setInt(5, value.id());
             stmt.executeUpdate();
         }

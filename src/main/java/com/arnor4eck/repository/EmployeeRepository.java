@@ -73,7 +73,8 @@ public class EmployeeRepository extends AbstractJDBCRepository<Employee> {
             stmt.setString(3, value.login());
             stmt.setString(4, value.passwordHash());
             stmt.setBoolean(5, value.isActive());
-            stmt.setTimestamp(6, Timestamp.valueOf(value.createdAt()));
+            LocalDateTime created = value.createdAt() != null ? value.createdAt() : LocalDateTime.now();
+            stmt.setTimestamp(6, Timestamp.valueOf(created));
             stmt.executeUpdate();
         }
     }
@@ -90,7 +91,8 @@ public class EmployeeRepository extends AbstractJDBCRepository<Employee> {
             stmt.setString(3, value.login());
             stmt.setString(4, value.passwordHash());
             stmt.setBoolean(5, value.isActive());
-            stmt.setTimestamp(6, Timestamp.valueOf(value.createdAt()));
+            LocalDateTime created = value.createdAt() != null ? value.createdAt() : LocalDateTime.now();
+            stmt.setTimestamp(6, Timestamp.valueOf(created));
             stmt.setInt(7, value.id());
             stmt.executeUpdate();
         }

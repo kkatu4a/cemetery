@@ -84,19 +84,34 @@ public class RequestRepository extends AbstractJDBCRepository<Request> {
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)){
             stmt.setInt(1, value.costumerId());
-            stmt.setInt(2, value.employeeId());
+            if (value.employeeId() > 0) {
+                stmt.setInt(2, value.employeeId());
+            } else {
+                stmt.setNull(2, Types.BIGINT);
+            }
             stmt.setInt(3, value.plotId());
             stmt.setString(4, value.deceasedFullName());
-            stmt.setDate(5, Date.valueOf(value.deceasedBirthday()));
-            stmt.setDate(6, Date.valueOf(value.deceasedDeathday()));
+            stmt.setDate(5, value.deceasedBirthday() != null ? Date.valueOf(value.deceasedBirthday()) : null);
+            stmt.setDate(6, value.deceasedDeathday() != null ? Date.valueOf(value.deceasedDeathday()) : null);
             stmt.setString(7, value.deceasedCertificate());
             stmt.setObject(8, value.status().toString(), Types.OTHER);
-            stmt.setBigDecimal(9, new BigDecimal(value.totalCost()));
+
+            BigDecimal cost = BigDecimal.ZERO;
+            if (value.totalCost() != null && !value.totalCost().trim().isEmpty()) {
+                try {
+                    cost = new BigDecimal(value.totalCost().trim().replace(',', '.'));
+                } catch (NumberFormatException ignored) {}
+            }
+            stmt.setBigDecimal(9, cost);
             stmt.setString(10, value.note());
-            stmt.setTimestamp(11, Timestamp.valueOf(value.createdAt()));
+
+            LocalDateTime created = value.createdAt() != null ? value.createdAt() : LocalDateTime.now();
+            stmt.setTimestamp(11, Timestamp.valueOf(created));
             stmt.executeUpdate();
         }
     }
+
+    @Override
     public void update(Request value) throws SQLException {
         String sql = """
         UPDATE requests SET 
@@ -111,14 +126,25 @@ public class RequestRepository extends AbstractJDBCRepository<Request> {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, value.costumerId());
-            stmt.setInt(2, value.employeeId());
+            if (value.employeeId() > 0) {
+                stmt.setInt(2, value.employeeId());
+            } else {
+                stmt.setNull(2, Types.BIGINT);
+            }
             stmt.setInt(3, value.plotId());
             stmt.setString(4, value.deceasedFullName());
-            stmt.setDate(5, Date.valueOf(value.deceasedBirthday()));
-            stmt.setDate(6, Date.valueOf(value.deceasedDeathday()));
+            stmt.setDate(5, value.deceasedBirthday() != null ? Date.valueOf(value.deceasedBirthday()) : null);
+            stmt.setDate(6, value.deceasedDeathday() != null ? Date.valueOf(value.deceasedDeathday()) : null);
             stmt.setString(7, value.deceasedCertificate());
             stmt.setObject(8, value.status().toString(), Types.OTHER);
-            stmt.setBigDecimal(9, new BigDecimal(value.totalCost()));
+
+            BigDecimal cost = BigDecimal.ZERO;
+            if (value.totalCost() != null && !value.totalCost().trim().isEmpty()) {
+                try {
+                    cost = new BigDecimal(value.totalCost().trim().replace(',', '.'));
+                } catch (NumberFormatException ignored) {}
+            }
+            stmt.setBigDecimal(9, cost);
             stmt.setString(10, value.note());
 
             stmt.setInt(11, value.id());
