@@ -9,91 +9,35 @@
     -fx-spacing: 10;
 }
 
-.form {
-    -fx-padding: 20;
-    -fx-spacing: 15;
-}
-
-.form-title {
-    -fx-font-size: 18px;
-    -fx-font-weight: bold;
-}
-
-.primary-button {
-    background-color: #2e6da4;
-    -fx-background-color: #2e6da4;
-    -fx-text-fill: white;
-    -fx-font-weight: bold;
-    -fx-cursor: hand;
-}
-
-.primary-button:hover {
-    background-color: #265a88;
-    -fx-background-color: #265a88;
-}
-
-.danger-button {
-    background-color: #c9302c;
-    -fx-background-color: #c9302c;
-    -fx-text-fill: white;
-    -fx-font-weight: bold;
-    -fx-cursor: hand;
-}
-
-.danger-button:hover {
-    background-color: #ac2925;
-    -fx-background-color: #ac2925;
-}
-
-.primary-button:disabled,
-.danger-button:disabled {
-    -fx-opacity: 0.5;
-}
-
-.text-field.invalid,
-.combo-box.invalid {
-    -fx-border-color: #c9302c;
-    -fx-border-width: 1.5;
-    -fx-border-radius: 3;
-}
-
-.error-label {
-    -fx-text-fill: #c9302c;
-    -fx-wrap-text: true;
-}
-
 /* Кнопки действий */
 .button-primary {
-    background-color: #1976D2;
     -fx-background-color: #1976D2;
     -fx-text-fill: white;
     -fx-font-weight: bold;
 }
+
 .button-primary:hover {
-    background-color: #1565C0;
     -fx-background-color: #1565C0;
 }
 
 .button-danger {
-    background-color: #D32F2F;
     -fx-background-color: #D32F2F;
     -fx-text-fill: white;
 }
+
 .button-danger:hover {
-    background-color: #C62828;
     -fx-background-color: #C62828;
 }
 
 /* Карточки аналитики */
 .metric-card {
-    background-color: #ffffff;
     -fx-background-color: #ffffff;
     -fx-padding: 15;
     -fx-background-radius: 8;
     -fx-border-radius: 8;
     -fx-border-color: #e0e0e0;
     -fx-border-width: 1;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.05), 5, 0, 0, 2);
 }
 
 .metric-title {
@@ -106,9 +50,26 @@
     -fx-font-weight: bold;
 }
 
-.metric-blue { -fx-text-fill: #1976D2; }
-.metric-amber { -fx-text-fill: #F57F17; }
-.metric-cyan { -fx-text-fill: #0097A7; }
-.metric-green { -fx-text-fill: #388E3C; }
-.metric-purple { -fx-text-fill: #7B1FA2; }
-.metric-teal { -fx-text-fill: #00796B; }
+.metric-blue {
+    -fx-text-fill: #1976D2;
+}
+
+.metric-amber {
+    -fx-text-fill: #F57F17;
+}
+
+.metric-cyan {
+    -fx-text-fill: #0097A7;
+}
+
+.metric-green {
+    -fx-text-fill: #388E3C;
+}
+
+.metric-purple {
+    -fx-text-fill: #7B1FA2;
+}
+
+.metric-teal {
+    -fx-text-fill: #00796B;
+}
