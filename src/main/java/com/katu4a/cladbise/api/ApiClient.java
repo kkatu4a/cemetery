@@ -18,7 +18,7 @@ public final class ApiClient {
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
     public ApiClient() {
-        this(System.getenv().getOrDefault("BACKEND_URL", "http://localhost:8080"));
+        this(System.getProperty("cemetery.backendUrl", System.getenv().getOrDefault("BACKEND_URL", "http://localhost:8080")));
     }
     public ApiClient(String baseUrl) {
         base = URI.create(baseUrl.replaceAll("/+$", "") + "/");

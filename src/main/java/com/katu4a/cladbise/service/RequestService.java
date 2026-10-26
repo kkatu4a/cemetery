@@ -116,8 +116,8 @@ public class RequestService {
         try (Workbook workbook = new XSSFWorkbook();
              FileOutputStream fos = new FileOutputStream(file)) {
 
-            Sheet sheet = workbook.createSheet("Р—Р°СЏРІРєРё");
-            String[] headers = {"ID", "Р¤РРћ РЈРјРµСЂС€РµРіРѕ", "Р—Р°СЏРІРёС‚РµР»СЊ", "РЎРѕС‚СЂСѓРґРЅРёРє", "РђРґСЂРµСЃ РјРµСЃС‚Р°", "РЎС‚Р°С‚СѓСЃ", "РЎС‚РѕРёРјРѕСЃС‚СЊ (в‚Ѕ)", "Р”Р°С‚Р° СЃРѕР·РґР°РЅРёСЏ", "РџСЂРёРјРµС‡Р°РЅРёРµ"};
+            Sheet sheet = workbook.createSheet("Заявки");
+            String[] headers = {"ID", "ФИО умершего", "Заявитель", "Сотрудник", "Адрес места", "Статус", "Стоимость (₽)", "Дата создания", "Примечание"};
 
             Row headerRow = sheet.createRow(0);
             for (int i = 0; i < headers.length; i++) {
@@ -150,7 +150,7 @@ public class RequestService {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
         try (PrintWriter writer = new PrintWriter(file, StandardCharsets.UTF_8)) {
             writer.write('\ufeff');
-            writer.println("ID;Р¤РРћ РЈРјРµСЂС€РµРіРѕ;Р—Р°СЏРІРёС‚РµР»СЊ;РЎРѕС‚СЂСѓРґРЅРёРє;РђРґСЂРµСЃ РјРµСЃС‚Р°;РЎС‚Р°С‚СѓСЃ;РЎС‚РѕРёРјРѕСЃС‚СЊ (в‚Ѕ);Р”Р°С‚Р° СЃРѕР·РґР°РЅРёСЏ;РџСЂРёРјРµС‡Р°РЅРёРµ");
+            writer.println("ID;ФИО умершего;Заявитель;Сотрудник;Адрес места;Статус;Стоимость (₽);Дата создания;Примечание");
             for (RequestRow r : rows) {
                 String createdStr = r.getCreatedAt() != null ? r.getCreatedAt().format(dtf) : "";
                 String costStr = String.format(Locale.US, "%.2f", r.getTotalCost() != null ? r.getTotalCost() : 0.0);
