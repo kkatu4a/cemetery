@@ -35,6 +35,8 @@
                    GridPane.rowIndex="2" GridPane.columnIndex="1"/>
     </GridPane>
 
+    <Label fx:id="errorLabel" styleClass="error-label" wrapText="true" maxWidth="Infinity"/>
+
     <HBox spacing="10" alignment="CENTER_RIGHT">
         <Button text="Сохранить" styleClass="primary-button" defaultButton="true"
                 onAction="#onSave"/>

@@ -13,6 +13,7 @@ public final class HttpCustomerService implements CustomerService {
     public Customer update(Customer c) { return save("PUT", "api/customers/" + c.id(), c); }
     public void archive(UUID id) { api.call("DELETE", "api/customers/" + id, null, Void.class); }
     private Customer save(String method, String path, Customer c) {
+        c = CustomerValidator.validate(c);
         return model(api.call(method, path, new ApiModels.CustomerInput(c.fullName(), c.phone(), c.email()), ApiModels.Customer.class));
     }
     private Customer model(ApiModels.Customer c) { return new Customer(c.id(), c.fullName(), c.phone(), c.email(), c.createdAt()); }

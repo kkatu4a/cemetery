@@ -18,7 +18,7 @@ class ApiContractTest {
     private ApiClient api;
     private static final UUID ID = UUID.fromString("01234567-89ab-cdef-0123-456789abcdef");
     private static final String CUSTOMER = """
-            {"id":"%s","status":"ACTIVE","fullName":"Иванов","phone":"123","email":null,"createdAt":"2026-10-26T12:00:00"}
+            {"id":"%s","status":"ACTIVE","fullName":"Иванов","phone":"+79991234567","email":null,"createdAt":"2026-10-26T12:00:00"}
             """.formatted(ID);
     @BeforeEach void start() throws Exception { server = new TestBackend(); api = new ApiClient(server.url()); }
     @AfterEach void stop() { server.close(); }
@@ -28,7 +28,7 @@ class ApiContractTest {
         server.responses.put("/api/customers", "[" + CUSTOMER + "," + CUSTOMER.replace("ACTIVE", "ARCHIVE") + "]");
         assertEquals(1, service.findAll().size());
         server.responses.put("/api/customers", CUSTOMER);
-        var saved = service.create(new Customer(null, "Иванов", "123", null, null));
+        var saved = service.create(new Customer(null, "Иванов", "+79991234567", null, null));
         assertEquals(ID, saved.id()); assertEquals("POST", server.method);
         assertFalse(new ObjectMapper().readTree(server.body).has("id"));
         assertNotNull(saved.createdAt());

@@ -20,7 +20,7 @@ class LiveBackendTest {
         var employees = new HttpEmployeeService(api);
         var plots = new HttpPlotService(api);
         var requests = new RequestService(api);
-        var customer = customers.create(new Customer(null, "Проверка клиента", "123", null, null));
+        var customer = customers.create(new Customer(null, "Проверка клиента", "+79991234567", null, null));
         var employee = employees.create(new Employee(null, "Проверка сотрудника", Role.MANAGER, suffix, true, null), "StrongPassword!1");
         var updated = employees.update(new Employee(employee.id(), "Изменён", employee.role(), employee.login(), false, employee.createdAt()), "");
         assertEquals("Изменён", updated.fullName()); assertFalse(updated.isActive());

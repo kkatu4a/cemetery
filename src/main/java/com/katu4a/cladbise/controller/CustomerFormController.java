@@ -3,6 +3,7 @@ import com.katu4a.cladbise.util.FxAsync;
 
 import com.katu4a.cladbise.model.Customer;
 import com.katu4a.cladbise.service.CustomerService;
+import com.katu4a.cladbise.service.CustomerValidator;
 import com.katu4a.cladbise.service.ValidationException;
 import com.katu4a.cladbise.util.AlertHelper;
 import com.katu4a.cladbise.util.FormUtils;
@@ -26,6 +27,8 @@ public class CustomerFormController implements SavableForm {
     private TextField phoneField;
     @FXML
     private TextField emailField;
+    @FXML
+    private Label errorLabel;
 
     private CustomerService customerService;
     private Customer editing;
@@ -57,14 +60,26 @@ public class CustomerFormController implements SavableForm {
     @FXML
     private void onSave() {
         FormUtils.clearInvalid(fullNameField, phoneField, emailField);
+        errorLabel.setText("");
 
         String email = FormUtils.text(emailField);
-        Customer customer = new Customer(
+        Customer input = new Customer(
                 editing == null ? null : editing.id(),
                 FormUtils.text(fullNameField),
                 FormUtils.text(phoneField),
                 email.isEmpty() ? null : email,
                 editing == null ? LocalDateTime.now() : editing.createdAt());
+
+        final Customer customer;
+        try {
+            customer = CustomerValidator.validate(input);
+        } catch (ValidationException error) {
+            Node field = fields.get(error.getField());
+            FormUtils.markInvalid(field);
+            if (field != null) field.requestFocus();
+            errorLabel.setText(error.getMessage());
+            return;
+        }
 
         FxAsync.run(titleLabel, () -> {
             if (editing == null) return customerService.create(customer);
