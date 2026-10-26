@@ -1,4 +1,5 @@
 package com.katu4a.cladbise.controller;
+import com.katu4a.cladbise.util.FxAsync;
 import com.katu4a.cladbise.util.BackendProvider;
 
 import com.katu4a.cladbise.model.Employee;
@@ -126,14 +127,8 @@ public class EmployeesTabController {
             return;
         }
 
-        try {
-            employeeService.delete(selected.id());
-            loadData();
-        } catch (ValidationException e) {
-            AlertHelper.showError(e.getMessage());
-        } catch (Exception e) {
-            AlertHelper.showError("Не удалось удалить сотрудника: " + e.getMessage());
-        }
+        FxAsync.run(employeesTable, () -> { employeeService.delete(selected.id()); return null; },
+                ignored -> loadData(), error -> AlertHelper.showError(error.getMessage()));
     }
 
     private boolean openForm(Employee existing) {
@@ -158,11 +153,9 @@ public class EmployeesTabController {
     }
 
     private void loadData() {
-        try {
-            employees.setAll(employeeService.findAll());
-            applyFilter();
-        } catch (Exception e) {
-            AlertHelper.showError("Не удалось загрузить сотрудников: " + e.getMessage());
-        }
+        statusLabel.setText("Загрузка…");
+        FxAsync.run(employeesTable, employeeService::findAll, values -> {
+            employees.setAll(values); applyFilter();
+        }, error -> { statusLabel.setText("Ошибка загрузки"); AlertHelper.showError("Не удалось загрузить сотрудников: " + error.getMessage()); });
     }
 }

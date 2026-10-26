@@ -1,4 +1,5 @@
 package com.katu4a.cladbise.controller;
+import com.katu4a.cladbise.util.FxAsync;
 
 import com.katu4a.cladbise.model.Employee;
 import com.katu4a.cladbise.service.EmployeeService;
@@ -84,21 +85,14 @@ public class EmployeeFormController implements SavableForm {
                 editing == null ? LocalDateTime.now() : editing.createdAt());
         String password = passwordField.getText() == null ? "" : passwordField.getText();
 
-        try {
-            if (editing == null) {
-                employeeService.create(employee, password);
-            } else {
-                employeeService.update(employee, password);
-            }
-            saved = true;
-            closeWindow();
-        } catch (ValidationException e) {
-            FormUtils.markInvalid(fields.get(e.getField()));
-            AlertHelper.showError(titleLabel.getScene().getWindow(), e.getMessage());
-        } catch (Exception e) {
-            AlertHelper.showError(titleLabel.getScene().getWindow(),
-                    "Не удалось сохранить сотрудника: " + e.getMessage());
-        }
+        FxAsync.run(titleLabel, () -> {
+            if (editing == null) return employeeService.create(employee, password);
+            return employeeService.update(employee, password);
+        }, result -> { saved = true; closeWindow(); }, error -> {
+            if (error instanceof ValidationException validation && validation.getField() != null)
+                FormUtils.markInvalid(fields.get(validation.getField()));
+            AlertHelper.showError(titleLabel.getScene().getWindow(), error.getMessage());
+        });
     }
 
     @FXML

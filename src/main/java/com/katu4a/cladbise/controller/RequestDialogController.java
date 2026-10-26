@@ -1,4 +1,5 @@
 package com.katu4a.cladbise.controller;
+import com.katu4a.cladbise.util.FxAsync;
 import com.katu4a.cladbise.util.BackendProvider;
 
 import com.katu4a.cladbise.util.RequestStatus;
@@ -44,34 +45,36 @@ public class RequestDialogController {
     }
 
     public void setRequestRow(RequestRow row) {
-        this.requestRow = row;
-        try {
-            List<ComboItem> customers = requestService.getCustomersForCombo();
-            List<ComboItem> employees = requestService.getEmployeesForCombo();
-            List<ComboItem> plots = requestService.getPlotsForCombo(row != null ? row.getPlotId() : null);
-
-            cbCustomer.setItems(FXCollections.observableArrayList(customers));
-            cbEmployee.setItems(FXCollections.observableArrayList(employees));
-            cbPlot.setItems(FXCollections.observableArrayList(plots));
-
+        this.requestRow = row == null ? new RequestRow() : copy(row);
+        FxAsync.run(cbCustomer, () -> new Dictionaries(
+                requestService.getCustomersForCombo(row == null ? null : row.getCustomerId()),
+                requestService.getEmployeesForCombo(row == null ? null : row.getEmployeeId()),
+                requestService.getPlotsForCombo(row == null ? null : row.getPlotId())), data -> {
+            cbCustomer.setItems(FXCollections.observableArrayList(data.customers()));
+            cbEmployee.setItems(FXCollections.observableArrayList(data.employees()));
+            cbPlot.setItems(FXCollections.observableArrayList(data.plots()));
             if (row != null) {
-                txtDeceasedName.setText("— (Бронь)".equals(row.getDeceasedFullName()) ? "" : row.getDeceasedFullName());
-                dpBirthDate.setValue(row.getDeceasedBirthday());
-                dpDeathDate.setValue(row.getDeceasedDeathday());
-                txtCertificate.setText(row.getDeceasedCertificate());
-                cbStatus.setValue(row.getStatusRussian());
-                txtCost.setText(row.getTotalCost() != null ? String.valueOf(row.getTotalCost()) : "0.0");
-                txtNotes.setText(row.getNote()); // Исправлено с getNotes на getNote
-
-                customers.stream().filter(c -> c.id().equals(row.getCustomerId())).findFirst().ifPresent(cbCustomer::setValue);
-                employees.stream().filter(e -> e.id().equals(row.getEmployeeId())).findFirst().ifPresent(cbEmployee::setValue);
-                plots.stream().filter(p -> p.id().equals(row.getPlotId())).findFirst().ifPresent(cbPlot::setValue);
+                txtDeceasedName.setText(row.getDeceasedFullName());
+                dpBirthDate.setValue(row.getDeceasedBirthday()); dpDeathDate.setValue(row.getDeceasedDeathday());
+                txtCertificate.setText(row.getDeceasedCertificate()); cbStatus.setValue(row.getStatusRussian());
+                txtCost.setText(String.valueOf(row.getTotalCost())); txtNotes.setText(row.getNote());
+                data.customers().stream().filter(c -> c.id().equals(row.getCustomerId())).findFirst().ifPresent(cbCustomer::setValue);
+                data.employees().stream().filter(e -> e.id().equals(row.getEmployeeId())).findFirst().ifPresent(cbEmployee::setValue);
+                data.plots().stream().filter(p -> p.id().equals(row.getPlotId())).findFirst().ifPresent(cbPlot::setValue);
             }
-        } catch (Exception e) {
-            AlertHelper.showError("Ошибка справочников", e.getMessage());
-        }
+        }, error -> AlertHelper.showError("Ошибка справочников", error.getMessage()));
     }
 
+    private record Dictionaries(List<ComboItem> customers, List<ComboItem> employees, List<ComboItem> plots) {}
+    private RequestRow copy(RequestRow r) {
+        RequestRow c = new RequestRow();
+        c.setId(r.getId()); c.setCustomerId(r.getCustomerId()); c.setEmployeeId(r.getEmployeeId()); c.setPlotId(r.getPlotId());
+        c.setDeceasedFullName(r.getDeceasedFullName()); c.setDeceasedBirthday(r.getDeceasedBirthday());
+        c.setDeceasedDeathday(r.getDeceasedDeathday()); c.setDeceasedCertificate(r.getDeceasedCertificate());
+        c.setStatus(r.getStatus()); c.setTotalCost(r.getTotalCost()); c.setNote(r.getNote());
+        c.setCreatedAt(r.getCreatedAt()); c.setRequestDate(r.getRequestDate()); c.setProcessedDate(r.getProcessedDate());
+        return c;
+    }
     public boolean isSaved() {
         return saved;
     }
@@ -108,14 +111,13 @@ public class RequestDialogController {
 
             requestRow.setNote(txtNotes.getText() != null ? txtNotes.getText().trim() : ""); // Исправлено на setNote
 
-            if (requestRow.getId() == null) {
-                requestService.create(requestRow);
-            } else {
-                requestService.update(requestRow);
-            }
-
-            saved = true;
-            closeStage();
+            requestService.validate(requestRow);
+            FxAsync.run(txtDeceasedName, () -> {
+                if (requestRow.getId() == null) requestService.create(requestRow);
+                else requestService.update(requestRow);
+                return null;
+            }, ignored -> { saved = true; closeStage(); },
+                    error -> AlertHelper.showError("Ошибка сохранения", error.getMessage()));
         } catch (ValidationException ve) {
             AlertHelper.showError("Ошибка валидации", ve.getMessage());
         } catch (Exception e) {

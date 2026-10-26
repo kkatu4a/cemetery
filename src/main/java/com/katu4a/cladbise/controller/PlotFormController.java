@@ -1,4 +1,5 @@
 package com.katu4a.cladbise.controller;
+import com.katu4a.cladbise.util.FxAsync;
 
 
 import com.katu4a.cladbise.model.Plot;
@@ -76,11 +77,10 @@ public class PlotFormController implements SavableForm {
         });
         statusCombo.setItems(FXCollections.observableArrayList(PlotStatus.values()));
 
-        try {
-            sectorCombo.setItems(FXCollections.observableArrayList(plotService.findAllSectors()));
-        } catch (Exception e) {
-            showError("Не удалось загрузить секторы: " + e.getMessage());
-        }
+        FxAsync.run(sectorCombo, plotService::findAllSectors, sectors -> {
+            sectorCombo.setItems(FXCollections.observableArrayList(sectors));
+            if (editing != null) fillForm(editing);
+        }, error -> showError(error.getMessage()));
 
         if (editing == null) {
             statusCombo.setValue(PlotStatus.FREE);
@@ -101,18 +101,9 @@ public class PlotFormController implements SavableForm {
         clearErrors();
         try {
             Plot plot = readForm();
-            if (editing == null) {
-                plotService.create(plot);
-            } else {
-                plotService.update(plot);
-            }
-            saved = true;
-            closeWindow();
-        } catch (ValidationException e) {
-            showError(e.getMessage());
-        } catch (Exception e) {
-            showError("Не удалось сохранить место: " + e.getMessage());
-        }
+            FxAsync.run(titleLabel, () -> editing == null ? plotService.create(plot) : plotService.update(plot),
+                    result -> { saved = true; closeWindow(); }, error -> showError(error.getMessage()));
+        } catch (ValidationException e) { showError(e.getMessage()); }
     }
 
     @FXML

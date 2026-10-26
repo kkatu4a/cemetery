@@ -1,4 +1,5 @@
 package com.katu4a.cladbise.controller;
+import com.katu4a.cladbise.util.FxAsync;
 import com.katu4a.cladbise.util.BackendProvider;
 
 import com.katu4a.cladbise.model.StatisticsData;
@@ -33,8 +34,8 @@ public class StatisticsTabController {
 
     @FXML
     public void loadStatistics() {
-        try {
-            StatisticsData stats = requestService.getStatistics();
+        lblTotalRequests.setText("Загрузка…");
+        FxAsync.run(lblTotalRequests, requestService::getStatistics, stats -> {
 
             lblTotalRequests.setText(String.valueOf(stats.getTotalRequests()));
             lblNewRequests.setText(String.valueOf(stats.getNewRequests()));
@@ -59,8 +60,6 @@ public class StatisticsTabController {
             }
             pieChartPlots.setData(plotChartData);
 
-        } catch (Exception e) {
-            AlertHelper.showError("Ошибка аналитики", e.getMessage());
-        }
+        }, error -> { lblTotalRequests.setText("Ошибка"); AlertHelper.showError("Ошибка аналитики", error.getMessage()); });
     }
 }

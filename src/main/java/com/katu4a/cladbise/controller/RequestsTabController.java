@@ -1,4 +1,5 @@
 package com.katu4a.cladbise.controller;
+import com.katu4a.cladbise.util.FxAsync;
 import com.katu4a.cladbise.util.BackendProvider;
 
 import com.katu4a.cladbise.util.RequestStatus;
@@ -119,11 +120,8 @@ public class RequestsTabController {
 
     @FXML
     public void loadData() {
-        try {
-            masterData.setAll(requestService.findAll());
-        } catch (Exception e) {
-            AlertHelper.showError("Ошибка БД", "Не удалось загрузить заявки: " + e.getMessage());
-        }
+        FxAsync.run(requestsTable, requestService::findAll, masterData::setAll,
+                error -> AlertHelper.showError("Ошибка загрузки", error.getMessage()));
     }
 
     @FXML
@@ -159,12 +157,8 @@ public class RequestsTabController {
 
         if (AlertHelper.showConfirmation("Удаление заявки",
                 "Удалить заявку #" + selected.getId() + " (" + selected.getDeceasedFullName() + ")?")) {
-            try {
-                requestService.delete(selected.getId());
-                loadData();
-            } catch (Exception e) {
-                AlertHelper.showError("Ошибка удаления", e.getMessage());
-            }
+            FxAsync.run(requestsTable, () -> { requestService.delete(selected.getId()); return null; },
+                    ignored -> loadData(), error -> AlertHelper.showError("Ошибка архивации", error.getMessage()));
         }
     }
 
@@ -185,12 +179,10 @@ public class RequestsTabController {
 
         File file = fileChooser.showSaveDialog(requestsTable.getScene().getWindow());
         if (file != null) {
-            try {
-                requestService.exportFile(file, filteredData);
-                AlertHelper.showInfo("Экспорт выполнен", "Файл успешно сохранён:\n" + file.getAbsolutePath());
-            } catch (Exception e) {
-                AlertHelper.showError("Ошибка экспорта", e.getMessage());
-            }
+            List<RequestRow> snapshot = List.copyOf(filteredData);
+            FxAsync.run(requestsTable, () -> { requestService.exportFile(file, snapshot); return null; },
+                    ignored -> AlertHelper.showInfo("Экспорт выполнен", "Файл сохранён: " + file.getAbsolutePath()),
+                    error -> AlertHelper.showError("Ошибка экспорта", error.getMessage()));
         }
     }
 

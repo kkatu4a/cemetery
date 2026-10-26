@@ -1,4 +1,5 @@
 package com.katu4a.cladbise.controller;
+import com.katu4a.cladbise.util.FxAsync;
 import com.katu4a.cladbise.util.BackendProvider;
 
 import com.katu4a.cladbise.model.Customer;
@@ -122,14 +123,8 @@ public class CustomersTabController {
             return;
         }
 
-        try {
-            customerService.delete(selected.id());
-            loadData();
-        } catch (ValidationException e) {
-            AlertHelper.showError(e.getMessage());
-        } catch (Exception e) {
-            AlertHelper.showError("Не удалось удалить заявителя: " + e.getMessage());
-        }
+        FxAsync.run(customersTable, () -> { customerService.delete(selected.id()); return null; },
+                ignored -> loadData(), error -> AlertHelper.showError(error.getMessage()));
     }
 
     private boolean openForm(Customer existing) {
@@ -157,11 +152,9 @@ public class CustomersTabController {
     }
 
     private void loadData() {
-        try {
-            customers.setAll(customerService.findAll());
-            applyFilter();
-        } catch (Exception e) {
-            AlertHelper.showError("Не удалось загрузить заявителей: " + e.getMessage());
-        }
+        statusLabel.setText("Загрузка…");
+        FxAsync.run(customersTable, customerService::findAll, values -> {
+            customers.setAll(values); applyFilter();
+        }, error -> { statusLabel.setText("Ошибка загрузки"); AlertHelper.showError("Не удалось загрузить заявителей: " + error.getMessage()); });
     }
 }

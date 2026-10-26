@@ -1,4 +1,5 @@
 package com.katu4a.cladbise.controller;
+import com.katu4a.cladbise.util.FxAsync;
 
 import com.katu4a.cladbise.model.Customer;
 import com.katu4a.cladbise.service.CustomerService;
@@ -65,21 +66,14 @@ public class CustomerFormController implements SavableForm {
                 email.isEmpty() ? null : email,
                 editing == null ? LocalDateTime.now() : editing.createdAt());
 
-        try {
-            if (editing == null) {
-                customerService.create(customer);
-            } else {
-                customerService.update(customer);
-            }
-            saved = true;
-            closeWindow();
-        } catch (ValidationException e) {
-            FormUtils.markInvalid(fields.get(e.getField()));
-            AlertHelper.showError(titleLabel.getScene().getWindow(), e.getMessage());
-        } catch (Exception e) {
-            AlertHelper.showError(titleLabel.getScene().getWindow(),
-                    "Не удалось сохранить заявителя: " + e.getMessage());
-        }
+        FxAsync.run(titleLabel, () -> {
+            if (editing == null) return customerService.create(customer);
+            return customerService.update(customer);
+        }, result -> { saved = true; closeWindow(); }, error -> {
+            if (error instanceof ValidationException validation && validation.getField() != null)
+                FormUtils.markInvalid(fields.get(validation.getField()));
+            AlertHelper.showError(titleLabel.getScene().getWindow(), error.getMessage());
+        });
     }
 
     @FXML

@@ -1,4 +1,5 @@
 package com.katu4a.cladbise.controller;
+import com.katu4a.cladbise.util.FxAsync;
 import com.katu4a.cladbise.util.BackendProvider;
 
 import com.katu4a.cladbise.model.Plot;
@@ -173,14 +174,8 @@ public class PlotsTabController {
             return;
         }
 
-        try {
-            plotService.delete(selected.id());
-            loadData();
-        } catch (ValidationException e) {
-            AlertHelper.showError(e.getMessage());
-        } catch (Exception e) {
-            AlertHelper.showError("Не удалось удалить место: " + e.getMessage());
-        }
+        FxAsync.run(plotsTable, () -> { plotService.delete(selected.id()); return null; },
+                ignored -> loadData(), error -> AlertHelper.showError(error.getMessage()));
     }
 
     private boolean openForm(Plot existing) {
@@ -249,27 +244,18 @@ public class PlotsTabController {
         statusLabel.setText(String.format("Показано записей: %d из %d", filteredPlots.size(), plots.size()));
     }
 
+    private record PlotData(List<Sector> sectors, List<Plot> plots) {}
+
     private void loadData() {
-        try {
-            List<Sector> sectors = plotService.findAllSectors();
+        statusLabel.setText("Загрузка…");
+        FxAsync.run(plotsTable, () -> new PlotData(plotService.findAllSectors(), plotService.findAll()), data -> {
             sectorNames.clear();
-            for (Sector sector : sectors) {
-                sectorNames.put(sector.id(), sector.name());
-            }
-
+            data.sectors().forEach(sector -> sectorNames.put(sector.id(), sector.name()));
             Sector previous = sectorFilter.getValue();
-            sectorFilter.setItems(FXCollections.observableArrayList(sectors));
-            if (previous != null) {
-                sectors.stream()
-                        .filter(sector -> sector.id().equals(previous.id()))
-                        .findFirst()
-                        .ifPresent(sectorFilter::setValue);
-            }
-
-            plots.setAll(plotService.findAll());
-            applyFilter();
-        } catch (Exception e) {
-            AlertHelper.showError("Не удалось загрузить места: " + e.getMessage());
-        }
+            sectorFilter.setItems(FXCollections.observableArrayList(data.sectors()));
+            if (previous != null) data.sectors().stream().filter(sector -> sector.id().equals(previous.id()))
+                    .findFirst().ifPresent(sectorFilter::setValue);
+            plots.setAll(data.plots()); applyFilter();
+        }, error -> { statusLabel.setText("Ошибка загрузки"); AlertHelper.showError(error.getMessage()); });
     }
 }
