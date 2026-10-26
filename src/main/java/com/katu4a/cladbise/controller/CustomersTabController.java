@@ -118,12 +118,12 @@ public class CustomersTabController {
         }
 
         boolean confirmed = AlertHelper.confirm(
-                String.format("Удалить заявителя «%s»?", selected.fullName()));
+                String.format("Отправить заявителя в архив «%s»?", selected.fullName()));
         if (!confirmed) {
             return;
         }
 
-        FxAsync.run(customersTable, () -> { customerService.delete(selected.id()); return null; },
+        FxAsync.run(customersTable, () -> { customerService.archive(selected.id()); return null; },
                 ignored -> loadData(), error -> AlertHelper.showError(error.getMessage()));
     }
 

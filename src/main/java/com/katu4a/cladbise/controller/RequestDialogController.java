@@ -121,7 +121,7 @@ public class RequestDialogController {
         } catch (ValidationException ve) {
             AlertHelper.showError("Ошибка валидации", ve.getMessage());
         } catch (Exception e) {
-            AlertHelper.showError("Ошибка сохранения в БД", e.getMessage());
+            AlertHelper.showError("Ошибка сохранения", e.getMessage());
         }
     }
 

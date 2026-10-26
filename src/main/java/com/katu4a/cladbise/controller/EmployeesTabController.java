@@ -122,12 +122,12 @@ public class EmployeesTabController {
         }
 
         boolean confirmed = AlertHelper.confirm(
-                String.format("Удалить сотрудника «%s»?", selected.fullName()));
+                String.format("Отправить сотрудника в архив «%s»?", selected.fullName()));
         if (!confirmed) {
             return;
         }
 
-        FxAsync.run(employeesTable, () -> { employeeService.delete(selected.id()); return null; },
+        FxAsync.run(employeesTable, () -> { employeeService.archive(selected.id()); return null; },
                 ignored -> loadData(), error -> AlertHelper.showError(error.getMessage()));
     }
 

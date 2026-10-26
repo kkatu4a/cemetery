@@ -18,7 +18,7 @@
     <HBox spacing="10" alignment="CENTER_LEFT">
         <Button text="Добавить" styleClass="primary-button" onAction="#onAdd"/>
         <Button fx:id="editButton" text="Изменить" onAction="#onEdit"/>
-        <Button fx:id="deleteButton" text="Удалить" styleClass="danger-button" onAction="#onDelete"/>
+        <Button fx:id="deleteButton" text="В архив" styleClass="danger-button" onAction="#onDelete"/>
         <Button text="Обновить" onAction="#onRefresh"/>
     </HBox>
 

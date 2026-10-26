@@ -13,5 +13,5 @@ public interface EmployeeService {
 
     Employee update(Employee employee, String rawPassword);
 
-    void delete(UUID id);
+    void archive(UUID id);
 }

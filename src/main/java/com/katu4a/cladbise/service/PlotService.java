@@ -16,5 +16,5 @@ public interface PlotService {
 
     Plot update(Plot plot);
 
-    void delete(UUID id);
+    void archive(UUID id);
 }

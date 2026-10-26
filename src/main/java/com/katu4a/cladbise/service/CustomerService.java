@@ -13,5 +13,5 @@ public interface CustomerService {
 
     Customer update(Customer customer);
 
-    void delete(UUID id);
+    void archive(UUID id);
 }

@@ -11,7 +11,7 @@ public final class HttpCustomerService implements CustomerService {
     }
     public Customer create(Customer c) { return save("POST", "api/customers", c); }
     public Customer update(Customer c) { return save("PUT", "api/customers/" + c.id(), c); }
-    public void delete(UUID id) { api.call("DELETE", "api/customers/" + id, null, Void.class); }
+    public void archive(UUID id) { api.call("DELETE", "api/customers/" + id, null, Void.class); }
     private Customer save(String method, String path, Customer c) {
         return model(api.call(method, path, new ApiModels.CustomerInput(c.fullName(), c.phone(), c.email()), ApiModels.Customer.class));
     }

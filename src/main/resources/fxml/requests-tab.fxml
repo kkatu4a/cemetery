@@ -14,7 +14,7 @@
         <HBox spacing="10" alignment="CENTER_LEFT">
             <Button text="+ Новая заявка" onAction="#handleAddRequest" styleClass="button-primary"/>
             <Button text="Редактировать" onAction="#handleEditRequest"/>
-            <Button text="Удалить" onAction="#handleDeleteRequest" styleClass="button-danger"/>
+            <Button text="В архив" onAction="#handleDeleteRequest" styleClass="button-danger"/>
 
             <Separator orientation="VERTICAL"/>
 

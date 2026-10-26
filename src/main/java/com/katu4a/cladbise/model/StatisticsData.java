@@ -2,13 +2,14 @@ package com.katu4a.cladbise.model;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.math.BigDecimal;
 
 public class StatisticsData {
     private int totalRequests;
     private int newRequests;
     private int processingRequests;
     private int completedRequests;
-    private double totalRevenue;
+    private BigDecimal totalRevenue = BigDecimal.ZERO;
 
     private int totalPlots;
     private int freePlots;
@@ -29,8 +30,8 @@ public class StatisticsData {
     public int getCompletedRequests() { return completedRequests; }
     public void setCompletedRequests(int completedRequests) { this.completedRequests = completedRequests; }
 
-    public double getTotalRevenue() { return totalRevenue; }
-    public void setTotalRevenue(double totalRevenue) { this.totalRevenue = totalRevenue; }
+    public BigDecimal getTotalRevenue() { return totalRevenue; }
+    public void setTotalRevenue(BigDecimal totalRevenue) { this.totalRevenue = totalRevenue; }
 
     public int getTotalPlots() { return totalPlots; }
     public void setTotalPlots(int totalPlots) { this.totalPlots = totalPlots; }

@@ -151,13 +151,13 @@ public class RequestsTabController {
     private void handleDeleteRequest() {
         RequestRow selected = requestsTable.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            AlertHelper.showWarning("Выберите заявку для удаления.");
+            AlertHelper.showWarning("Выберите заявку для архивирования.");
             return;
         }
 
-        if (AlertHelper.showConfirmation("Удаление заявки",
-                "Удалить заявку #" + selected.getId() + " (" + selected.getDeceasedFullName() + ")?")) {
-            FxAsync.run(requestsTable, () -> { requestService.delete(selected.getId()); return null; },
+        if (AlertHelper.showConfirmation("Архивирование заявки",
+                "Отправить в архив заявку #" + selected.getId() + " (" + selected.getDeceasedFullName() + ")?")) {
+            FxAsync.run(requestsTable, () -> { requestService.archive(selected.getId()); return null; },
                     ignored -> loadData(), error -> AlertHelper.showError("Ошибка архивации", error.getMessage()));
         }
     }

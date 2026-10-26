@@ -14,7 +14,7 @@ public final class HttpEmployeeService implements EmployeeService {
         return save("POST", "api/employees", e, password);
     }
     public Employee update(Employee e, String password) { return save("PUT", "api/employees/" + e.id(), e, password); }
-    public void delete(UUID id) { api.call("DELETE", "api/employees/" + id, null, Void.class); }
+    public void archive(UUID id) { api.call("DELETE", "api/employees/" + id, null, Void.class); }
     private Employee save(String method, String path, Employee e, String password) {
         String hash = password == null || password.isBlank() ? null : PasswordHasher.sha256(password);
         return model(api.call(method, path, new ApiModels.EmployeeInput(e.fullName(), e.role(), e.login(), hash, e.isActive()), ApiModels.Employee.class));

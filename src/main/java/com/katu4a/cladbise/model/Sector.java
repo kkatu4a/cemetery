@@ -6,7 +6,8 @@ import java.time.LocalDateTime;
 public record Sector(
         UUID id,
         String name,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        boolean archived
 ) implements ExportModel {
     @Override
     public String toExportString() {

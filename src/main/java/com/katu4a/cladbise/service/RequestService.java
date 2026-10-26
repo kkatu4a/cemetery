@@ -67,7 +67,7 @@ public class RequestService {
         var saved = api.call(method, path, input, ApiModels.Request.class);
         r.setId(saved.id()); r.setCreatedAt(saved.createdAt()); r.setRequestDate(saved.requestDate());
     }
-    public void delete(UUID id) { api.call("DELETE", "api/requests/" + id, null, Void.class); }
+    public void archive(UUID id) { api.call("DELETE", "api/requests/" + id, null, Void.class); }
     public List<ComboItem> getCustomersForCombo() { return getCustomersForCombo(null); }
     public List<ComboItem> getCustomersForCombo(UUID current) {
         return api.list("api/customers", ApiModels.Customer.class).stream()
@@ -100,7 +100,7 @@ public class RequestService {
         stats.setCompletedRequests(stats.getRequestStatusCounts().get(RequestStatus.COMPLETED.getValue()));
         stats.setFreePlots(stats.getPlotStatusCounts().get(PlotStatus.FREE.getValue()));
         stats.setOccupiedPlots(stats.getPlotStatusCounts().get(PlotStatus.OCCUPIED.getValue()));
-        stats.setTotalRevenue(requests.stream().map(ApiModels.Request::totalCost).reduce(BigDecimal.ZERO, BigDecimal::add).doubleValue());
+        stats.setTotalRevenue(requests.stream().map(ApiModels.Request::totalCost).reduce(BigDecimal.ZERO, BigDecimal::add));
         return stats;
     }
     public void exportFile(File file, List<RequestRow> rows) throws Exception {

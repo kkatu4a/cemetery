@@ -78,7 +78,7 @@ public class PlotFormController implements SavableForm {
         statusCombo.setItems(FXCollections.observableArrayList(PlotStatus.values()));
 
         FxAsync.run(sectorCombo, plotService::findAllSectors, sectors -> {
-            sectorCombo.setItems(FXCollections.observableArrayList(sectors));
+            sectorCombo.setItems(FXCollections.observableArrayList(sectors.stream().filter(s -> !s.archived() || editing != null && s.id().equals(editing.sectorId())).toList()));
             if (editing != null) fillForm(editing);
         }, error -> showError(error.getMessage()));
 

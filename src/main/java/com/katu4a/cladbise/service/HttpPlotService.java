@@ -11,12 +11,11 @@ public final class HttpPlotService implements PlotService {
     }
     public List<Sector> findAllSectors() {
         return api.list("api/sectors", ApiModels.Sector.class).stream()
-                .filter(s -> s.status() == ApiModels.Status.ACTIVE)
-                .map(s -> new Sector(s.id(), s.name(), s.createdAt())).toList();
+                .map(s -> new Sector(s.id(), s.name(), s.createdAt(), s.status() == ApiModels.Status.ARCHIVE)).toList();
     }
     public Plot create(Plot p) { return save("POST", "api/plots", p); }
     public Plot update(Plot p) { return save("PUT", "api/plots/" + p.id(), p); }
-    public void delete(UUID id) { api.call("DELETE", "api/plots/" + id, null, Void.class); }
+    public void archive(UUID id) { api.call("DELETE", "api/plots/" + id, null, Void.class); }
     private Plot save(String method, String path, Plot p) {
         return model(api.call(method, path, new ApiModels.PlotInput(p.sectorId(), p.rowNumber(), p.plotNumber(),
                 p.status(), p.lengthCm(), p.widthCm(), p.coordinates()), ApiModels.Plot.class));

@@ -168,13 +168,13 @@ public class PlotsTabController {
 
         String sectorName = sectorNames.getOrDefault(selected.sectorId(), "—");
         boolean confirmed = AlertHelper.confirm(String.format(
-                "Удалить место: сектор «%s», ряд %d, место %d?",
+                "Отправить место в архив: сектор «%s», ряд %d, место %d?",
                 sectorName, selected.rowNumber(), selected.plotNumber()));
         if (!confirmed) {
             return;
         }
 
-        FxAsync.run(plotsTable, () -> { plotService.delete(selected.id()); return null; },
+        FxAsync.run(plotsTable, () -> { plotService.archive(selected.id()); return null; },
                 ignored -> loadData(), error -> AlertHelper.showError(error.getMessage()));
     }
 
@@ -252,7 +252,7 @@ public class PlotsTabController {
             sectorNames.clear();
             data.sectors().forEach(sector -> sectorNames.put(sector.id(), sector.name()));
             Sector previous = sectorFilter.getValue();
-            sectorFilter.setItems(FXCollections.observableArrayList(data.sectors()));
+            sectorFilter.setItems(FXCollections.observableArrayList(data.sectors().stream().filter(s -> !s.archived()).toList()));
             if (previous != null) data.sectors().stream().filter(sector -> sector.id().equals(previous.id()))
                     .findFirst().ifPresent(sectorFilter::setValue);
             plots.setAll(data.plots()); applyFilter();
