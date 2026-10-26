@@ -1,10 +1,497 @@
-.title {
-    -fx-font-size: 22px;
-    -fx-font-weight: bold;
-    -fx-padding: 15;
+/* ==========================================================================
+   КЛАССИЧЕСКАЯ ТЁМНАЯ ТЕМА (DARK THEME)
+   ========================================================================== */
+
+.root {
+    -fx-base: #20232a;
+    -fx-background: #20232a;
+    -fx-control-inner-background: #282c34;
+    -fx-accent: #3b82f6;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 13px;
+    -fx-text-fill: #e2e8f0;
 }
 
+/* ==========================================================================
+   ВЕРХНИЙ ЗАГОЛОВОК
+   ========================================================================== */
+
+.title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #f1f5f9;
+    -fx-padding: 16 20 14 20;
+    -fx-background-color: #20232a;
+    -fx-border-color: #333946;
+    -fx-border-width: 0 0 1 0;
+}
+
+/* ==========================================================================
+   ВКЛАДКИ (TABPANE)
+   ========================================================================== */
+
+.tab-pane {
+    -fx-background-color: #20232a;
+}
+
+.tab-pane .tab-header-area {
+    -fx-padding: 0;
+}
+
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-background-color: #20232a;
+    -fx-border-color: #333946;
+    -fx-border-width: 0 0 1 0;
+}
+
+.tab-pane .tab {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 6 6 0 0;
+    -fx-padding: 8 20;
+    -fx-border-color: transparent;
+    -fx-border-width: 0 0 2 0;
+    -fx-cursor: hand;
+}
+
+.tab-pane .tab .tab-label {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+}
+
+.tab-pane .tab:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.04);
+}
+
+.tab-pane .tab:hover .tab-label {
+    -fx-text-fill: #e2e8f0;
+}
+
+.tab-pane .tab:selected {
+    -fx-background-color: #282c34;
+    -fx-border-color: #3b82f6 #333946 transparent #333946;
+    -fx-border-width: 2 1 0 1;
+    -fx-border-radius: 6 6 0 0;
+}
+
+.tab-pane .tab:selected .tab-label {
+    -fx-text-fill: #3b82f6;
+    -fx-font-weight: bold;
+}
+
+/* Содержимое вкладки */
 .tab-content {
-    -fx-padding: 15;
-    -fx-spacing: 10;
+    -fx-background-color: #20232a;
+    -fx-padding: 16;
+    -fx-spacing: 12;
+}
+
+/* ==========================================================================
+   ФОРМЫ И ДИАЛОГИ
+   ========================================================================== */
+
+.form {
+    -fx-background-color: #20232a;
+    -fx-padding: 22;
+    -fx-spacing: 16;
+}
+
+.form-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #f1f5f9;
+}
+
+/* ==========================================================================
+   КНОПКИ (БЕЗ ВНУТРЕННЕЙ ОБВОДКИ ТЕКСТА)
+   ========================================================================== */
+
+.button,
+.primary-button, .button-primary,
+.danger-button, .button-danger {
+    -fx-background-insets: 0;
+    -fx-border-insets: 0;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 7 15;
+}
+
+/* Убираем пунктирную/прямоугольную обводку вокруг текста внутри кнопок */
+.button .text,
+.primary-button .text, .button-primary .text,
+.danger-button .text, .button-danger .text {
+    -fx-effect: null;
+    -fx-stroke: null;
+    -fx-stroke-width: 0;
+}
+
+/* Стандартная кнопка */
+.button {
+    -fx-background-color: #2d333f;
+    -fx-text-fill: #e2e8f0;
+    -fx-border-color: #3d4554;
+    -fx-font-weight: normal;
+}
+
+.button:hover {
+    -fx-background-color: #38404f;
+    -fx-border-color: #4f586b;
+    -fx-text-fill: #ffffff;
+}
+
+.button:pressed {
+    -fx-background-color: #242933;
+    -fx-border-color: #3d4554;
+}
+
+.button:focused {
+    -fx-background-color: #2d333f;
+    -fx-border-color: #3b82f6;
+    -fx-effect: dropshadow(three-pass-box, rgba(59, 130, 246, 0.35), 4, 0, 0, 0);
+}
+
+/* Главная кнопка (Primary) */
+.primary-button, .button-primary {
+    -fx-background-color: #2563eb;
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+    -fx-border-color: #3b82f6;
+}
+
+.primary-button:hover, .button-primary:hover {
+    -fx-background-color: #1d4ed8;
+    -fx-border-color: #60a5fa;
+}
+
+.primary-button:pressed, .button-primary:pressed {
+    -fx-background-color: #1e40af;
+}
+
+.primary-button:focused, .button-primary:focused {
+    -fx-background-color: #2563eb;
+    -fx-border-color: #93c5fd;
+    -fx-effect: dropshadow(three-pass-box, rgba(59, 130, 246, 0.45), 4, 0, 0, 0);
+}
+
+/* Опасная кнопка (Danger / Удалить) */
+.danger-button, .button-danger {
+    -fx-background-color: #dc2626;
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+    -fx-border-color: #ef4444;
+}
+
+.danger-button:hover, .button-danger:hover {
+    -fx-background-color: #b91c1c;
+    -fx-border-color: #f87171;
+}
+
+.danger-button:pressed, .button-danger:pressed {
+    -fx-background-color: #991b1b;
+}
+
+.danger-button:focused, .button-danger:focused {
+    -fx-background-color: #dc2626;
+    -fx-border-color: #fca5a5;
+    -fx-effect: dropshadow(three-pass-box, rgba(239, 68, 68, 0.45), 4, 0, 0, 0);
+}
+
+.button:disabled,
+.primary-button:disabled,
+.danger-button:disabled,
+.button-primary:disabled,
+.button-danger:disabled {
+    -fx-opacity: 0.45;
+}
+
+/* ==========================================================================
+   ПОЛЯ ВВОДА (TEXTFIELD, COMBOBOX, DATEPICKER, TEXTAREA)
+   ========================================================================== */
+
+.text-field, .combo-box, .date-picker, .text-area {
+    -fx-background-color: #282c34;
+    -fx-text-fill: #f1f5f9;
+    -fx-prompt-text-fill: #64748b;
+    -fx-border-color: #3b4252;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-background-insets: 0;
+    -fx-border-insets: 0;
+    -fx-padding: 6 10;
+}
+
+.text-field:focused, .combo-box:focused, .date-picker:focused, .text-area:focused {
+    -fx-border-color: #3b82f6;
+    -fx-effect: dropshadow(three-pass-box, rgba(59, 130, 246, 0.3), 5, 0, 0, 0);
+}
+
+.text-field.invalid, .combo-box.invalid {
+    -fx-border-color: #ef4444;
+    -fx-border-width: 1.5;
+}
+
+.error-label {
+    -fx-text-fill: #ef4444;
+    -fx-wrap-text: true;
+}
+
+/* ComboBox стилизация списка */
+.combo-box .cell {
+    -fx-text-fill: #f1f5f9;
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: #282c34;
+    -fx-border-color: #3b4252;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.5), 10, 0, 0, 4);
+}
+
+.combo-box-popup .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #cbd5e1;
+    -fx-padding: 7 12;
+}
+
+.combo-box-popup .list-cell:hover, .combo-box-popup .list-cell:filled:selected {
+    -fx-background-color: #333946;
+    -fx-text-fill: #ffffff;
+}
+
+/* DatePicker выпадающий календарь */
+.date-picker-popup {
+    -fx-background-color: #282c34;
+    -fx-border-color: #3b4252;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.5), 10, 0, 0, 4);
+}
+
+.date-picker-popup .month-year-pane {
+    -fx-background-color: #20232a;
+}
+
+.date-picker-popup .spinner-label {
+    -fx-text-fill: #f1f5f9;
+}
+
+.date-picker-popup .day-cell {
+    -fx-background-color: #282c34;
+    -fx-text-fill: #cbd5e1;
+}
+
+.date-picker-popup .day-cell:hover {
+    -fx-background-color: #333946;
+    -fx-text-fill: #ffffff;
+}
+
+.date-picker-popup .selected {
+    -fx-background-color: #2563eb;
+    -fx-text-fill: #ffffff;
+}
+
+/* ==========================================================================
+   ТАБЛИЦЫ (TABLEVIEW)
+   ========================================================================== */
+
+.table-view {
+    -fx-background-color: #242830;
+    -fx-border-color: #333946;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-table-cell-border-color: transparent;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #1c1f24;
+    -fx-border-color: #333946;
+    -fx-border-width: 0 0 1 0;
+}
+
+.table-view .column-header {
+    -fx-background-color: transparent;
+    -fx-border-color: #333946;
+    -fx-border-width: 0 1 0 0;
+    -fx-padding: 9 12;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: #94a3b8;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+
+.table-row-cell {
+    -fx-background-color: #242830;
+    -fx-border-color: #2c313c;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 3 0;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: #20242b;
+}
+
+.table-row-cell:hover {
+    -fx-background-color: #2d3340;
+}
+
+.table-row-cell:filled:selected {
+    -fx-background-color: #1e3a5f;
+}
+
+.table-row-cell:filled:selected .text {
+    -fx-fill: #ffffff;
+}
+
+.table-cell {
+    -fx-text-fill: #cbd5e1;
+    -fx-alignment: CENTER_LEFT;
+    -fx-font-size: 13px;
+}
+
+.table-view .placeholder .label {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 14px;
+}
+
+/* ==========================================================================
+   КАРТОЧКИ АНАЛИТИКИ (METRIC CARDS)
+   ========================================================================== */
+
+.metric-card {
+    -fx-background-color: #282c34;
+    -fx-padding: 16;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #353b48;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.35), 8, 0, 0, 2);
+}
+
+.metric-title {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 13px;
+    -fx-font-weight: 500;
+}
+
+.metric-value {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.metric-blue   { -fx-text-fill: #60a5fa; }
+.metric-amber  { -fx-text-fill: #fbbf24; }
+.metric-cyan   { -fx-text-fill: #38bdf8; }
+.metric-green  { -fx-text-fill: #4ade80; }
+.metric-purple { -fx-text-fill: #c084fc; }
+.metric-teal   { -fx-text-fill: #2dd4bf; }
+
+/* ==========================================================================
+   ДИАГРАММЫ (CHARTS)
+   ========================================================================== */
+
+.chart {
+    -fx-background-color: #282c34;
+    -fx-border-color: #353b48;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 12;
+}
+
+.chart-title {
+    -fx-text-fill: #f1f5f9;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+}
+
+.chart-legend {
+    -fx-background-color: transparent;
+}
+
+.chart-legend-item {
+    -fx-text-fill: #cbd5e1;
+}
+
+.chart-pie-label {
+    -fx-fill: #cbd5e1;
+}
+
+/* ==========================================================================
+   ДИАЛОГИ И ALERT-ОКНА
+   ========================================================================== */
+
+.dialog-pane {
+    -fx-background-color: #20232a;
+    -fx-border-color: #353b48;
+}
+
+.dialog-pane > .content.label {
+    -fx-text-fill: #e2e8f0;
+}
+
+.dialog-pane:header .header-panel {
+    -fx-background-color: #20232a;
+}
+
+.dialog-pane:header .header-panel .label {
+    -fx-text-fill: #f1f5f9;
+    -fx-font-weight: bold;
+}
+
+/* ==========================================================================
+   ПОЛОСЫ ПРОКРУТКИ (SCROLLBARS)
+   ========================================================================== */
+
+.scroll-bar {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: #3d4554;
+    -fx-background-radius: 4;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: #4f586b;
+}
+
+/* ==========================================================================
+   ПРОЧИЕ ЭЛЕМЕНТЫ
+   ========================================================================== */
+
+.label {
+    -fx-text-fill: #e2e8f0;
+}
+
+.check-box {
+    -fx-text-fill: #e2e8f0;
+}
+
+.check-box .box {
+    -fx-background-color: #282c34;
+    -fx-border-color: #3b4252;
+    -fx-border-radius: 4;
+}
+
+.check-box:selected .box {
+    -fx-background-color: #2563eb;
+    -fx-border-color: #3b82f6;
+}
+
+.check-box:selected .mark {
+    -fx-background-color: white;
+}
+
+.separator:vertical .line, .separator:horizontal .line {
+    -fx-border-color: #333946;
+    -fx-border-width: 0.5;
 }

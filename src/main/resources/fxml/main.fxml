@@ -8,7 +8,7 @@
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml">
     <top>
-        <Label text="Система управления кладбищем" styleClass="title"/>
+        <Label text="Система управления кладбищем" styleClass="title" maxWidth="Infinity"/>
     </top>
     <center>
         <TabPane tabClosingPolicy="UNAVAILABLE">

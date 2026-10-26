@@ -1,11 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.katu4a.cladbise.controller.PlotsTabController"
       styleClass="tab-content">
-    <Label text="Места: раздел в разработке"/>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Button text="Добавить" styleClass="primary-button" onAction="#onAdd"/>
+        <Button fx:id="editButton" text="Изменить" onAction="#onEdit"/>
+        <Button fx:id="deleteButton" text="В архив" styleClass="danger-button" onAction="#onDelete"/>
+        <Button text="Обновить" onAction="#onRefresh"/>
+    </HBox>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <TextField fx:id="searchField" promptText="Поиск: сектор, ряд, место, координаты" prefWidth="320"/>
+        <ComboBox fx:id="statusFilter" promptText="Все статусы" prefWidth="160"/>
+        <ComboBox fx:id="sectorFilter" promptText="Все секторы" prefWidth="160"/>
+        <Button text="Сбросить" onAction="#onReset"/>
+    </HBox>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Сортировка:"/>
+        <ComboBox fx:id="sortCombo" promptText="Не выбрана" prefWidth="160"/>
+        <CheckBox fx:id="descendingCheck" text="По убыванию"/>
+    </HBox>
+
+    <TableView fx:id="plotsTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="sectorColumn" text="Сектор" prefWidth="150"/>
+            <TableColumn fx:id="rowColumn" text="Ряд" prefWidth="70"/>
+            <TableColumn fx:id="plotNumberColumn" text="Место" prefWidth="80"/>
+            <TableColumn fx:id="statusColumn" text="Статус" prefWidth="150"/>
+            <TableColumn fx:id="lengthColumn" text="Длина, см" prefWidth="100"/>
+            <TableColumn fx:id="widthColumn" text="Ширина, см" prefWidth="100"/>
+            <TableColumn fx:id="coordinatesColumn" text="Координаты" prefWidth="200"/>
+        </columns>
+    </TableView>
+
+    <Label fx:id="statusLabel"/>
 </VBox>
