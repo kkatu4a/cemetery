@@ -33,10 +33,13 @@ class JavaFxTest {
             Parent root = FXMLLoader.load(getClass().getResource("/fxml/main.fxml"));
             var tabs = (javafx.scene.control.TabPane) ((javafx.scene.layout.BorderPane) root).getCenter();
             tabs.getTabs().forEach(tab -> loaded.add((Parent) tab.getContent()));
-            new Scene(root); root.applyCss(); root.layout();
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/css/styles.css").toExternalForm());
+            root.applyCss(); root.layout();
             for (String name : new String[]{"customer-form", "employee-form", "plot-form", "request-dialog"}) {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/" + name + ".fxml"));
-                Parent form = loader.load(); new Scene(form);
+                Parent form = loader.load(); Scene formScene = new Scene(form);
+                formScene.getStylesheets().add(getClass().getResource("/css/styles.css").toExternalForm());
                 loaded.add(form);
                 Object controller = loader.getController();
                 if (controller instanceof CustomerFormController c) c.init(BackendProvider.getCustomerService(), null);
@@ -52,6 +55,41 @@ class JavaFxTest {
                 root -> root.getProperties().containsKey(FxAsync.class.getName())))) Thread.sleep(10);
         assertTrue(fx(() -> roots.stream().noneMatch(root -> root.getProperties().containsKey(FxAsync.class.getName()))));
         assertNotNull(server.path);
+    }
+
+    @Test void buttonStylesApplyWithoutFontConversionWarnings() throws Exception {
+        var warnings = new java.util.concurrent.ConcurrentLinkedQueue<String>();
+        var logger = java.util.logging.Logger.getLogger("");
+        var handler = new java.util.logging.Handler() {
+            public void publish(java.util.logging.LogRecord record) {
+                if (record.getLevel().intValue() >= java.util.logging.Level.WARNING.intValue())
+                    warnings.add(record.getMessage());
+            }
+            public void flush() {}
+            public void close() {}
+        };
+        logger.addHandler(handler);
+        try {
+            fx(() -> {
+                VBox root = new VBox();
+                for (String style : new String[]{"button", "primary-button", "button-primary", "danger-button", "button-danger"}) {
+                    var button = new javafx.scene.control.Button(style);
+                    button.getStyleClass().add(style); root.getChildren().add(button);
+                }
+                Scene scene = new Scene(root);
+                scene.getStylesheets().add(getClass().getResource("/css/styles.css").toExternalForm());
+                root.applyCss(); root.layout();
+                for (var child : root.getChildren()) {
+                    var button = (javafx.scene.control.Button) child;
+                    assertEquals(13, button.getFont().getSize());
+                    button.setDisable(true); root.applyCss();
+                    button.setDisable(false); root.applyCss();
+                }
+                return null;
+            });
+            assertTrue(warnings.stream().noneMatch(message -> message.contains("-fx-font") || message.contains("ClassCastException")),
+                    () -> String.join("\n", warnings));
+        } finally { logger.removeHandler(handler); }
     }
 
     @Test void workerRunsOffFxThreadAndRejectsDuplicateSubmission() throws Exception {
