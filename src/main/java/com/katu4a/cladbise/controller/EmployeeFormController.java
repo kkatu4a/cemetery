@@ -80,7 +80,6 @@ public class EmployeeFormController implements SavableForm {
                 FormUtils.text(fullNameField),
                 roleCombo.getValue(),
                 FormUtils.text(loginField),
-                editing == null ? "" : editing.passwordHash(),
                 activeCheck.isSelected(),
                 editing == null ? LocalDateTime.now() : editing.createdAt());
         String password = passwordField.getText() == null ? "" : passwordField.getText();

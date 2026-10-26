@@ -19,5 +19,5 @@ public final class HttpEmployeeService implements EmployeeService {
         String hash = password == null || password.isBlank() ? null : PasswordHasher.sha256(password);
         return model(api.call(method, path, new ApiModels.EmployeeInput(e.fullName(), e.role(), e.login(), hash, e.isActive()), ApiModels.Employee.class));
     }
-    private Employee model(ApiModels.Employee e) { return new Employee(e.id(), e.fullName(), e.role(), e.login(), null, e.active(), e.createdAt()); }
+    private Employee model(ApiModels.Employee e) { return new Employee(e.id(), e.fullName(), e.role(), e.login(), e.active(), e.createdAt()); }
 }

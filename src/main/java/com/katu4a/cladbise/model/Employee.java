@@ -10,7 +10,6 @@ public record Employee (
         String fullName,
         Role role,
         String login,
-        String passwordHash,
         boolean isActive,
         LocalDateTime createdAt
 ) implements ExportModel {
@@ -21,7 +20,6 @@ public record Employee (
                 fullName,
                 role.name(),
                 login,
-                passwordHash,
                 String.valueOf(isActive),
                 createdAt.toString()
         );
