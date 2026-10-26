@@ -1,7 +1,8 @@
 package com.katu4a.cladbise.controller;
+import com.katu4a.cladbise.util.BackendProvider;
 
-import com.arnor4eck.util.enums.RequestStatus;
-import com.arnor4eck.util.exceptions.CreateValueException;
+import com.katu4a.cladbise.util.RequestStatus;
+import com.katu4a.cladbise.service.ValidationException;
 import com.katu4a.cladbise.model.ComboItem;
 import com.katu4a.cladbise.model.RequestRow;
 import com.katu4a.cladbise.service.RequestService;
@@ -28,7 +29,7 @@ public class RequestDialogController {
     @FXML private TextField txtCost;
     @FXML private TextArea txtNotes;
 
-    private final RequestService requestService = new RequestService();
+    private final RequestService requestService = BackendProvider.getRequestService();
     private RequestRow requestRow;
     private boolean saved = false;
 
@@ -62,9 +63,9 @@ public class RequestDialogController {
                 txtCost.setText(row.getTotalCost() != null ? String.valueOf(row.getTotalCost()) : "0.0");
                 txtNotes.setText(row.getNote()); // Исправлено с getNotes на getNote
 
-                customers.stream().filter(c -> c.id() == row.getCustomerId()).findFirst().ifPresent(cbCustomer::setValue);
-                employees.stream().filter(e -> e.id() == row.getEmployeeId()).findFirst().ifPresent(cbEmployee::setValue);
-                plots.stream().filter(p -> p.id() == row.getPlotId()).findFirst().ifPresent(cbPlot::setValue);
+                customers.stream().filter(c -> c.id().equals(row.getCustomerId())).findFirst().ifPresent(cbCustomer::setValue);
+                employees.stream().filter(e -> e.id().equals(row.getEmployeeId())).findFirst().ifPresent(cbEmployee::setValue);
+                plots.stream().filter(p -> p.id().equals(row.getPlotId())).findFirst().ifPresent(cbPlot::setValue);
             }
         } catch (Exception e) {
             AlertHelper.showError("Ошибка справочников", e.getMessage());
@@ -82,9 +83,9 @@ public class RequestDialogController {
                 requestRow = new RequestRow();
             }
 
-            requestRow.setCustomerId(cbCustomer.getValue() != null ? cbCustomer.getValue().id() : 0);
-            requestRow.setPlotId(cbPlot.getValue() != null ? cbPlot.getValue().id() : 0);
-            requestRow.setEmployeeId(cbEmployee.getValue() != null ? cbEmployee.getValue().id() : 0);
+            requestRow.setCustomerId(cbCustomer.getValue() != null ? cbCustomer.getValue().id() : null);
+            requestRow.setPlotId(cbPlot.getValue() != null ? cbPlot.getValue().id() : null);
+            requestRow.setEmployeeId(cbEmployee.getValue() != null ? cbEmployee.getValue().id() : null);
             requestRow.setDeceasedFullName(txtDeceasedName.getText() != null ? txtDeceasedName.getText().trim() : "");
             requestRow.setDeceasedBirthday(dpBirthDate.getValue());
             requestRow.setDeceasedDeathday(dpDeathDate.getValue());
@@ -100,14 +101,14 @@ public class RequestDialogController {
 
             String costStr = txtCost.getText() != null ? txtCost.getText().trim().replace(',', '.') : "0";
             try {
-                requestRow.setTotalCost(costStr.isEmpty() ? 0.0 : Double.parseDouble(costStr));
+                requestRow.setTotalCost(costStr.isEmpty() ? java.math.BigDecimal.ZERO : new java.math.BigDecimal(costStr));
             } catch (NumberFormatException e) {
-                throw new CreateValueException("Стоимость должна быть числом!");
+                throw new ValidationException("Стоимость должна быть числом!");
             }
 
             requestRow.setNote(txtNotes.getText() != null ? txtNotes.getText().trim() : ""); // Исправлено на setNote
 
-            if (requestRow.getId() == 0) {
+            if (requestRow.getId() == null) {
                 requestService.create(requestRow);
             } else {
                 requestService.update(requestRow);
@@ -115,7 +116,7 @@ public class RequestDialogController {
 
             saved = true;
             closeStage();
-        } catch (CreateValueException ve) {
+        } catch (ValidationException ve) {
             AlertHelper.showError("Ошибка валидации", ve.getMessage());
         } catch (Exception e) {
             AlertHelper.showError("Ошибка сохранения в БД", e.getMessage());

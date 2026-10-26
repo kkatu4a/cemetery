@@ -1,9 +1,8 @@
 package com.katu4a.cladbise.controller;
+import com.katu4a.cladbise.util.BackendProvider;
 
 import com.katu4a.cladbise.model.Customer;
 import com.katu4a.cladbise.service.CustomerService;
-import com.katu4a.cladbise.service.DbCustomerService;
-import com.katu4a.cladbise.service.StubCustomerService;
 import com.katu4a.cladbise.service.ValidationException;
 import com.katu4a.cladbise.util.AlertHelper;
 import com.katu4a.cladbise.util.FormDialog;
@@ -45,7 +44,7 @@ public class CustomersTabController {
     @FXML
     private Label statusLabel;
 
-    private final CustomerService customerService = new DbCustomerService();
+    private final CustomerService customerService = BackendProvider.getCustomerService();
 
     private final ObservableList<Customer> customers = FXCollections.observableArrayList();
     private final FilteredList<Customer> filteredCustomers = new FilteredList<>(customers);

@@ -3,6 +3,7 @@ package com.katu4a.cladbise.service;
 import com.katu4a.cladbise.model.Customer;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface CustomerService {
 
@@ -12,5 +13,5 @@ public interface CustomerService {
 
     Customer update(Customer customer);
 
-    void delete(int id);
+    void delete(UUID id);
 }

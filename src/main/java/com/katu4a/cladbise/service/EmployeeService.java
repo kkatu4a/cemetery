@@ -3,6 +3,7 @@ package com.katu4a.cladbise.service;
 import com.katu4a.cladbise.model.Employee;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface EmployeeService {
 
@@ -12,5 +13,5 @@ public interface EmployeeService {
 
     Employee update(Employee employee, String rawPassword);
 
-    void delete(int id);
+    void delete(UUID id);
 }

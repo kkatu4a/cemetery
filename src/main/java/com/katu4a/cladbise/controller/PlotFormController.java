@@ -122,7 +122,7 @@ public class PlotFormController implements SavableForm {
 
     private void fillForm(Plot plot) {
         sectorCombo.getItems().stream()
-                .filter(sector -> sector.id() == plot.sectorId())
+                .filter(sector -> sector.id().equals(plot.sectorId()))
                 .findFirst()
                 .ifPresent(sectorCombo::setValue);
         rowField.setText(String.valueOf(plot.rowNumber()));
@@ -157,7 +157,7 @@ public class PlotFormController implements SavableForm {
         }
 
         return new Plot(
-                editing == null ? 0 : editing.id(),
+                editing == null ? null : editing.id(),
                 sector.id(),
                 row,
                 plotNumber,

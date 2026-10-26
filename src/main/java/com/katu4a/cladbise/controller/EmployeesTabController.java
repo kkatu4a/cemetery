@@ -1,9 +1,8 @@
 package com.katu4a.cladbise.controller;
+import com.katu4a.cladbise.util.BackendProvider;
 
 import com.katu4a.cladbise.model.Employee;
-import com.katu4a.cladbise.service.DbEmployeeService;
 import com.katu4a.cladbise.service.EmployeeService;
-import com.katu4a.cladbise.service.StubEmployeeService;
 import com.katu4a.cladbise.service.ValidationException;
 import com.katu4a.cladbise.util.AlertHelper;
 import com.katu4a.cladbise.util.FormDialog;
@@ -47,7 +46,7 @@ public class EmployeesTabController {
     @FXML
     private Label statusLabel;
 
-    private final EmployeeService employeeService = new DbEmployeeService();
+    private final EmployeeService employeeService = BackendProvider.getEmployeeService();
 
     private final ObservableList<Employee> employees = FXCollections.observableArrayList();
     private final FilteredList<Employee> filteredEmployees = new FilteredList<>(employees);

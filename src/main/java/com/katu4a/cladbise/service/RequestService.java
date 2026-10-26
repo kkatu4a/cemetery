@@ -1,271 +1,108 @@
 package com.katu4a.cladbise.service;
 
-import com.arnor4eck.model.*;
-import com.arnor4eck.repository.*;
-import com.arnor4eck.util.enums.PlotStatus;
-import com.arnor4eck.util.enums.RequestStatus;
-import com.arnor4eck.util.exceptions.CreateValueException;
-import com.katu4a.cladbise.model.ComboItem;
-import com.katu4a.cladbise.model.RequestRow;
-import com.katu4a.cladbise.model.StatisticsData;
-import com.katu4a.cladbise.util.BackendProvider;
+import com.katu4a.cladbise.api.*;
+import com.katu4a.cladbise.model.*;
+import com.katu4a.cladbise.util.*;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.math.BigDecimal;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
-import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collectors;
-
 public class RequestService {
-
-    private final RequestRepository requestRepo = BackendProvider.getRequestRepository();
-    private final CustomerRepository customerRepo = BackendProvider.getCustomerRepository();
-    private final EmployeeRepository employeeRepo = BackendProvider.getEmployeeRepository();
-    private final PlotRepository plotRepo = BackendProvider.getPlotRepository();
-    private final SectorRepository sectorRepo = BackendProvider.getSectorRepository();
-
-    public List<RequestRow> findAll() throws SQLException {
-        Map<Integer, Customer> customers = customerRepo.getAll().stream()
-                .collect(Collectors.toMap(Customer::id, c -> c));
-        Map<Integer, Employee> employees = employeeRepo.getAll().stream()
-                .collect(Collectors.toMap(Employee::id, e -> e));
-        Map<Integer, Sector> sectors = sectorRepo.getAll().stream()
-                .collect(Collectors.toMap(Sector::id, s -> s));
-        Map<Integer, Plot> plots = plotRepo.getAll().stream()
-                .collect(Collectors.toMap(Plot::id, p -> p));
-
-        List<RequestRow> result = new ArrayList<>();
-        for (Request req : requestRepo.getAll()) {
+    private final ApiClient api;
+    public RequestService(ApiClient api) { this.api = api; }
+    private <T> Map<UUID,T> index(List<T> values, Function<T,UUID> id) {
+        return values.stream().collect(Collectors.toMap(id, Function.identity()));
+    }
+    public List<RequestRow> findAll() {
+        var customers = index(api.list("api/customers", ApiModels.Customer.class), ApiModels.Customer::id);
+        var employees = index(api.list("api/employees", ApiModels.Employee.class), ApiModels.Employee::id);
+        var sectors = index(api.list("api/sectors", ApiModels.Sector.class), ApiModels.Sector::id);
+        var plots = index(api.list("api/plots", ApiModels.Plot.class), ApiModels.Plot::id);
+        return api.list("api/requests", ApiModels.Request.class).stream()
+                .filter(r -> r.status() == ApiModels.Status.ACTIVE)
+                .sorted(Comparator.comparing(ApiModels.Request::createdAt).reversed()).map(r -> {
             RequestRow row = new RequestRow();
-            row.setId(req.id());
-            row.setCustomerId(req.costumerId());
-            row.setEmployeeId(req.employeeId());
-            row.setPlotId(req.plotId());
-
-            Customer c = customers.get(req.costumerId());
-            row.setCustomerFullName(c != null ? c.fullName() : "ID: " + req.costumerId());
-
-            Employee e = employees.get(req.employeeId());
-            row.setEmployeeFullName(e != null ? e.fullName() : "Не назначен");
-
-            Plot p = plots.get(req.plotId());
-            if (p != null) {
-                Sector s = sectors.get(p.sectorId());
-                String sectorName = s != null ? s.name() : String.valueOf(p.sectorId());
-                row.setPlotAddress(String.format("Сектор %s, Ряд %d, № %d", sectorName, p.rowNumber(), p.plotNumber()));
-            } else {
-                row.setPlotAddress("Участок ID: " + req.plotId());
-            }
-
-            row.setDeceasedFullName(req.deceasedFullName() != null ? req.deceasedFullName() : "— (Бронь)");
-            row.setDeceasedBirthday(req.deceasedBirthday());
-            row.setDeceasedDeathday(req.deceasedDeathday());
-            row.setDeceasedCertificate(req.deceasedCertificate());
-            row.setStatus(req.status());
-
-            double cost = 0.0;
-            if (req.totalCost() != null && !req.totalCost().isBlank()) {
-                try {
-                    cost = Double.parseDouble(req.totalCost().replace(',', '.'));
-                } catch (NumberFormatException ignored) {}
-            }
-            row.setTotalCost(cost);
-            row.setNote(req.note());
-            row.setCreatedAt(req.createdAt());
-
-            result.add(row);
-        }
-        result.sort(Comparator.comparingInt(RequestRow::getId).reversed());
-        return result;
+            row.setId(r.id()); row.setCustomerId(r.customerId()); row.setEmployeeId(r.employeeId()); row.setPlotId(r.plotId());
+            var customer = customers.get(r.customerId());
+            var employee = employees.get(r.employeeId());
+            var plot = plots.get(r.plotId());
+            row.setCustomerFullName(customer == null ? String.valueOf(r.customerId()) : customer.fullName());
+            row.setEmployeeFullName(employee == null ? "Не назначен" : employee.fullName());
+            var sector = plot == null ? null : sectors.get(plot.sectorId());
+            row.setPlotAddress(plot == null ? String.valueOf(r.plotId()) : String.format("Сектор %s, Ряд %d, № %d",
+                    sector == null ? plot.sectorId() : sector.name(), plot.rowNumber(), plot.plotNumber()));
+            row.setDeceasedFullName(r.deceasedFullName()); row.setDeceasedBirthday(r.deceasedBirthday());
+            row.setDeceasedDeathday(r.deceasedDeathday()); row.setDeceasedCertificate(r.deceasedCertificate());
+            row.setStatus(r.requestStatus()); row.setTotalCost(r.totalCost()); row.setNote(r.note());
+            row.setCreatedAt(r.createdAt()); row.setRequestDate(r.requestDate()); row.setProcessedDate(r.processedDate());
+            return row;
+        }).toList();
     }
-
-    public void validate(RequestRow row) {
-        if (row.getCustomerId() <= 0) {
-            throw new CreateValueException("Выберите заявителя из списка!");
-        }
-        if (row.getPlotId() <= 0) {
-            throw new CreateValueException("Выберите место захоронения!");
-        }
-        if (row.getEmployeeId() <= 0) {
-            throw new CreateValueException("Выберите ответственного сотрудника!");
-        }
-        if (row.getDeceasedFullName() == null || row.getDeceasedFullName().isBlank()) {
-            throw new CreateValueException("Введите ФИО умершего!");
-        }
-        if (row.getDeceasedBirthday() == null || row.getDeceasedDeathday() == null) {
-            throw new CreateValueException("Укажите дату рождения и дату смерти!");
-        }
-        if (row.getDeceasedDeathday().isBefore(row.getDeceasedBirthday())) {
-            throw new CreateValueException("Дата смерти не может быть раньше даты рождения!");
-        }
-        if (row.getTotalCost() == null || row.getTotalCost() < 0) {
-            throw new CreateValueException("Стоимость не может быть отрицательной!");
-        }
-        if (row.getStatus() == null) {
-            throw new CreateValueException("Выберите статус заявки!");
-        }
+    public void validate(RequestRow r) {
+        if (r.getCustomerId() == null) throw new ValidationException("Выберите заявителя");
+        if (r.getPlotId() == null) throw new ValidationException("Выберите место захоронения");
+        if (r.getStatus() == null) throw new ValidationException("Выберите статус заявки");
+        if (r.getTotalCost() == null || r.getTotalCost().signum() < 0 || r.getTotalCost().scale() > 2
+                || r.getTotalCost().compareTo(new BigDecimal("99999999.99")) > 0)
+            throw new ValidationException("Стоимость: от 0 до 99999999.99, не более двух знаков после запятой");
+        if (r.getDeceasedBirthday() != null && r.getDeceasedDeathday() != null
+                && r.getDeceasedDeathday().isBefore(r.getDeceasedBirthday()))
+            throw new ValidationException("Дата смерти не может быть раньше даты рождения");
     }
-
-    public void create(RequestRow row) throws SQLException {
-        validate(row);
-        Request req = new Request(
-                0,
-                row.getCustomerId(),
-                row.getEmployeeId(),
-                row.getPlotId(),
-                row.getDeceasedFullName(),
-                row.getDeceasedBirthday(),
-                row.getDeceasedDeathday(),
-                row.getDeceasedCertificate(),
-                row.getStatus(),
-                String.format(Locale.US, "%.2f", row.getTotalCost()),
-                row.getNote(),
-                LocalDateTime.now()
-        );
-        requestRepo.save(req);
-        updatePlotStatusForRequest(row.getPlotId(), row.getStatus());
+    public void create(RequestRow row) { save("POST", "api/requests", row); }
+    public void update(RequestRow row) { save("PUT", "api/requests/" + row.getId(), row); }
+    private void save(String method, String path, RequestRow r) {
+        validate(r);
+        var input = new ApiModels.RequestInput(r.getCustomerId(), r.getPlotId(), r.getEmployeeId(),
+                r.getDeceasedFullName(), r.getDeceasedBirthday(), r.getDeceasedDeathday(), r.getDeceasedCertificate(),
+                r.getStatus(), r.getRequestDate() == null ? LocalDateTime.now() : r.getRequestDate(),
+                r.getProcessedDate(), r.getTotalCost(), r.getNote());
+        var saved = api.call(method, path, input, ApiModels.Request.class);
+        r.setId(saved.id()); r.setCreatedAt(saved.createdAt()); r.setRequestDate(saved.requestDate());
     }
-
-    public void update(RequestRow row) throws SQLException {
-        validate(row);
-        Optional<Request> oldReqOpt = requestRepo.get(row.getId());
-        Request req = new Request(
-                row.getId(),
-                row.getCustomerId(),
-                row.getEmployeeId(),
-                row.getPlotId(),
-                row.getDeceasedFullName(),
-                row.getDeceasedBirthday(),
-                row.getDeceasedDeathday(),
-                row.getDeceasedCertificate(),
-                row.getStatus(),
-                String.format(Locale.US, "%.2f", row.getTotalCost()),
-                row.getNote(),
-                row.getCreatedAt() != null ? row.getCreatedAt() : LocalDateTime.now()
-        );
-        requestRepo.update(req);
-
-        if (oldReqOpt.isPresent()) {
-            int oldPlotId = oldReqOpt.get().plotId();
-            if (oldPlotId != row.getPlotId()) {
-                syncPlotStatus(oldPlotId);
-            }
-        }
-        updatePlotStatusForRequest(row.getPlotId(), row.getStatus());
+    public void delete(UUID id) { api.call("DELETE", "api/requests/" + id, null, Void.class); }
+    public List<ComboItem> getCustomersForCombo() { return getCustomersForCombo(null); }
+    public List<ComboItem> getCustomersForCombo(UUID current) {
+        return api.list("api/customers", ApiModels.Customer.class).stream()
+                .filter(c -> c.status() == ApiModels.Status.ACTIVE || c.id().equals(current))
+                .map(c -> new ComboItem(c.id(), c.fullName() + " (" + c.phone() + ")")).toList();
     }
-
-    public void delete(int id) throws SQLException {
-        Optional<Request> reqOpt = requestRepo.get(id);
-        requestRepo.delete(id);
-        if (reqOpt.isPresent()) {
-            syncPlotStatus(reqOpt.get().plotId());
-        }
+    public List<ComboItem> getEmployeesForCombo() { return getEmployeesForCombo(null); }
+    public List<ComboItem> getEmployeesForCombo(UUID current) {
+        return api.list("api/employees", ApiModels.Employee.class).stream()
+                .filter(e -> e.status() == ApiModels.Status.ACTIVE && e.active() || e.id().equals(current))
+                .map(e -> new ComboItem(e.id(), e.fullName())).toList();
     }
-
-    private void updatePlotStatusForRequest(int plotId, RequestStatus status) throws SQLException {
-        Optional<Plot> plotOpt = plotRepo.get(plotId);
-        if (plotOpt.isPresent()) {
-            Plot p = plotOpt.get();
-            PlotStatus targetStatus = (status == RequestStatus.COMPLETED) ? PlotStatus.OCCUPIED :
-                    (status == RequestStatus.REJECTED) ? PlotStatus.FREE : PlotStatus.RESERVED;
-            if (p.status() != targetStatus) {
-                plotRepo.update(new Plot(p.id(), p.sectorId(), p.rowNumber(), p.plotNumber(), targetStatus, p.lengthCm(), p.widthCm(), p.coordinates()));
-            }
-        }
+    public List<ComboItem> getPlotsForCombo(UUID current) {
+        var sectors = index(api.list("api/sectors", ApiModels.Sector.class), ApiModels.Sector::id);
+        return api.list("api/plots", ApiModels.Plot.class).stream()
+                .filter(p -> p.status() == ApiModels.Status.ACTIVE && p.plotStatus() == PlotStatus.FREE || p.id().equals(current))
+                .map(p -> new ComboItem(p.id(), String.format("Сектор %s, Ряд %d, № %d (%s)",
+                        sectors.containsKey(p.sectorId()) ? sectors.get(p.sectorId()).name() : p.sectorId(),
+                        p.rowNumber(), p.plotNumber(), p.plotStatus().getValue()))).toList();
     }
-
-    private void syncPlotStatus(int plotId) throws SQLException {
-        List<Request> plotRequests = requestRepo.getAll().stream()
-                .filter(r -> r.plotId() == plotId)
-                .toList();
-        Optional<Plot> plotOpt = plotRepo.get(plotId);
-        if (plotOpt.isPresent()) {
-            Plot p = plotOpt.get();
-            PlotStatus targetStatus = PlotStatus.FREE;
-            if (plotRequests.stream().anyMatch(r -> r.status() == RequestStatus.COMPLETED)) {
-                targetStatus = PlotStatus.OCCUPIED;
-            } else if (plotRequests.stream().anyMatch(r -> r.status() != RequestStatus.REJECTED)) {
-                targetStatus = PlotStatus.RESERVED;
-            }
-            if (p.status() != targetStatus) {
-                plotRepo.update(new Plot(p.id(), p.sectorId(), p.rowNumber(), p.plotNumber(), targetStatus, p.lengthCm(), p.widthCm(), p.coordinates()));
-            }
-        }
-    }
-
-    public List<ComboItem> getCustomersForCombo() throws SQLException {
-        return customerRepo.getAll().stream()
-                .map(c -> new ComboItem(c.id(), c.fullName() + " (" + c.phone() + ")"))
-                .toList();
-    }
-
-    public List<ComboItem> getEmployeesForCombo() throws SQLException {
-        return employeeRepo.getAll().stream()
-                .filter(Employee::isActive)
-                .map(e -> new ComboItem(e.id(), e.fullName() + " [" + e.role().name() + "]"))
-                .toList();
-    }
-
-    public List<ComboItem> getPlotsForCombo(Integer currentPlotId) throws SQLException {
-        Map<Integer, String> sectorNames = sectorRepo.getAll().stream()
-                .collect(Collectors.toMap(Sector::id, Sector::name));
-
-        return plotRepo.getAll().stream()
-                .filter(p -> p.status() == PlotStatus.FREE || (currentPlotId != null && p.id() == currentPlotId))
-                .map(p -> {
-                    String sName = sectorNames.getOrDefault(p.sectorId(), String.valueOf(p.sectorId()));
-                    String title = String.format("Сектор %s, Ряд %d, № %d (%s)",
-                            sName, p.rowNumber(), p.plotNumber(), p.status().getValue());
-                    return new ComboItem(p.id(), title);
-                })
-                .toList();
-    }
-
-    public StatisticsData getStatistics() throws SQLException {
-        StatisticsData stats = new StatisticsData();
-        Collection<Request> allRequests = requestRepo.getAll();
-        Collection<Plot> allPlots = plotRepo.getAll();
-
-        // Статистика заявок (как в StatisticsOutputStrategy)
-        for (RequestStatus status : RequestStatus.values()) {
-            long count = allRequests.stream().filter(r -> r.status() == status).count();
-            stats.getRequestStatusCounts().put(status.getValue(), (int) count);
-        }
-
-        double revenue = 0.0;
-        for (Request r : allRequests) {
-            if (r.totalCost() != null) {
-                try {
-                    revenue += Double.parseDouble(r.totalCost().replace(',', '.'));
-                } catch (NumberFormatException ignored) {}
-            }
-        }
-
-        stats.setTotalRequests(allRequests.size());
-        stats.setNewRequests(stats.getRequestStatusCounts().getOrDefault(RequestStatus.NEW.getValue(), 0));
-        stats.setProcessingRequests(stats.getRequestStatusCounts().getOrDefault(RequestStatus.PROCESSING.getValue(), 0));
-        stats.setCompletedRequests(stats.getRequestStatusCounts().getOrDefault(RequestStatus.COMPLETED.getValue(), 0));
-        stats.setTotalRevenue(revenue);
-
-        // Статистика мест (как в StatisticsOutputStrategy)
-        for (PlotStatus status : PlotStatus.values()) {
-            long count = allPlots.stream().filter(p -> p.status() == status).count();
-            stats.getPlotStatusCounts().put(status.getValue(), (int) count);
-        }
-
-        stats.setTotalPlots(allPlots.size());
-        stats.setFreePlots(stats.getPlotStatusCounts().getOrDefault(PlotStatus.FREE.getValue(), 0));
-        stats.setOccupiedPlots(stats.getPlotStatusCounts().getOrDefault(PlotStatus.OCCUPIED.getValue(), 0));
-
+    public StatisticsData getStatistics() {
+        var requests = api.list("api/requests", ApiModels.Request.class).stream().filter(r -> r.status() == ApiModels.Status.ACTIVE).toList();
+        var plots = api.list("api/plots", ApiModels.Plot.class).stream().filter(p -> p.status() == ApiModels.Status.ACTIVE).toList();
+        var stats = new StatisticsData();
+        for (var status : RequestStatus.values()) stats.getRequestStatusCounts().put(status.getValue(), (int) requests.stream().filter(r -> r.requestStatus() == status).count());
+        for (var status : PlotStatus.values()) stats.getPlotStatusCounts().put(status.getValue(), (int) plots.stream().filter(p -> p.plotStatus() == status).count());
+        stats.setTotalRequests(requests.size()); stats.setTotalPlots(plots.size());
+        stats.setNewRequests(stats.getRequestStatusCounts().get(RequestStatus.NEW.getValue()));
+        stats.setProcessingRequests(stats.getRequestStatusCounts().get(RequestStatus.PROCESSING.getValue()));
+        stats.setCompletedRequests(stats.getRequestStatusCounts().get(RequestStatus.COMPLETED.getValue()));
+        stats.setFreePlots(stats.getPlotStatusCounts().get(PlotStatus.FREE.getValue()));
+        stats.setOccupiedPlots(stats.getPlotStatusCounts().get(PlotStatus.OCCUPIED.getValue()));
+        stats.setTotalRevenue(requests.stream().map(ApiModels.Request::totalCost).reduce(BigDecimal.ZERO, BigDecimal::add).doubleValue());
         return stats;
     }
-
     public void exportFile(File file, List<RequestRow> rows) throws Exception {
         if (file.getName().toLowerCase().endsWith(".xlsx")) {
             exportToXlsx(file, rows);
@@ -279,8 +116,8 @@ public class RequestService {
         try (Workbook workbook = new XSSFWorkbook();
              FileOutputStream fos = new FileOutputStream(file)) {
 
-            Sheet sheet = workbook.createSheet("Заявки");
-            String[] headers = {"ID", "ФИО Умершего", "Заявитель", "Сотрудник", "Адрес места", "Статус", "Стоимость (₽)", "Дата создания", "Примечание"};
+            Sheet sheet = workbook.createSheet("Р—Р°СЏРІРєРё");
+            String[] headers = {"ID", "Р¤РРћ РЈРјРµСЂС€РµРіРѕ", "Р—Р°СЏРІРёС‚РµР»СЊ", "РЎРѕС‚СЂСѓРґРЅРёРє", "РђРґСЂРµСЃ РјРµСЃС‚Р°", "РЎС‚Р°С‚СѓСЃ", "РЎС‚РѕРёРјРѕСЃС‚СЊ (в‚Ѕ)", "Р”Р°С‚Р° СЃРѕР·РґР°РЅРёСЏ", "РџСЂРёРјРµС‡Р°РЅРёРµ"};
 
             Row headerRow = sheet.createRow(0);
             for (int i = 0; i < headers.length; i++) {
@@ -290,13 +127,13 @@ public class RequestService {
             int rowIdx = 1;
             for (RequestRow r : rows) {
                 Row row = sheet.createRow(rowIdx++);
-                row.createCell(0).setCellValue(r.getId());
+                row.createCell(0).setCellValue(r.getId().toString());
                 row.createCell(1).setCellValue(r.getDeceasedFullName() != null ? r.getDeceasedFullName() : "");
                 row.createCell(2).setCellValue(r.getCustomerFullName() != null ? r.getCustomerFullName() : "");
                 row.createCell(3).setCellValue(r.getEmployeeFullName() != null ? r.getEmployeeFullName() : "");
                 row.createCell(4).setCellValue(r.getPlotAddress() != null ? r.getPlotAddress() : "");
                 row.createCell(5).setCellValue(r.getStatusRussian() != null ? r.getStatusRussian() : "");
-                row.createCell(6).setCellValue(r.getTotalCost() != null ? r.getTotalCost() : 0.0);
+                row.createCell(6).setCellValue(r.getTotalCost() != null ? r.getTotalCost().doubleValue() : 0.0);
                 row.createCell(7).setCellValue(r.getCreatedAt() != null ? r.getCreatedAt().format(dtf) : "");
                 row.createCell(8).setCellValue(r.getNote() != null ? r.getNote() : "");
             }
@@ -313,11 +150,11 @@ public class RequestService {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
         try (PrintWriter writer = new PrintWriter(file, StandardCharsets.UTF_8)) {
             writer.write('\ufeff');
-            writer.println("ID;ФИО Умершего;Заявитель;Сотрудник;Адрес места;Статус;Стоимость (₽);Дата создания;Примечание");
+            writer.println("ID;Р¤РРћ РЈРјРµСЂС€РµРіРѕ;Р—Р°СЏРІРёС‚РµР»СЊ;РЎРѕС‚СЂСѓРґРЅРёРє;РђРґСЂРµСЃ РјРµСЃС‚Р°;РЎС‚Р°С‚СѓСЃ;РЎС‚РѕРёРјРѕСЃС‚СЊ (в‚Ѕ);Р”Р°С‚Р° СЃРѕР·РґР°РЅРёСЏ;РџСЂРёРјРµС‡Р°РЅРёРµ");
             for (RequestRow r : rows) {
                 String createdStr = r.getCreatedAt() != null ? r.getCreatedAt().format(dtf) : "";
                 String costStr = String.format(Locale.US, "%.2f", r.getTotalCost() != null ? r.getTotalCost() : 0.0);
-                writer.printf("%d;\"%s\";\"%s\";\"%s\";\"%s\";\"%s\";%s;\"%s\";\"%s\"%n",
+                writer.printf("%s;\"%s\";\"%s\";\"%s\";\"%s\";\"%s\";%s;\"%s\";\"%s\"%n",
                         r.getId(),
                         r.getDeceasedFullName() != null ? r.getDeceasedFullName().replace("\"", "\"\"") : "",
                         r.getCustomerFullName() != null ? r.getCustomerFullName().replace("\"", "\"\"") : "",
@@ -332,3 +169,4 @@ public class RequestService {
         }
     }
 }
+

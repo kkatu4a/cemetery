@@ -1,4 +1,5 @@
 package com.katu4a.cladbise.model;
+import java.util.UUID;
 
 import com.katu4a.cladbise.util.RequestStatus;
 import org.jetbrains.annotations.Nullable;
@@ -8,10 +9,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public record Request(
-        int id,
-        int costumerId,
-        int employeeId,
-        int plotId,
+        UUID id,
+        UUID costumerId,
+        UUID employeeId,
+        UUID plotId,
         @Nullable String deceasedFullName,
         @Nullable LocalDate deceasedBirthday,
         @Nullable LocalDate deceasedDeathday,

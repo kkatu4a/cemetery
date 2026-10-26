@@ -1,16 +1,17 @@
 package com.katu4a.cladbise.model;
+import java.util.UUID;
 
 import com.katu4a.cladbise.util.PlotStatus;
 import org.jetbrains.annotations.Nullable;
 
 public record Plot(
-        int id,
-        int sectorId,
+        UUID id,
+        UUID sectorId,
         int rowNumber,
         int plotNumber,
         PlotStatus status,
-        float lengthCm,
-        float widthCm ,
+        int lengthCm,
+        int widthCm ,
         @Nullable String coordinates
 ) implements ExportModel {
     @Override

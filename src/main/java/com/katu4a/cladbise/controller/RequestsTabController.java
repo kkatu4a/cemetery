@@ -1,6 +1,7 @@
 package com.katu4a.cladbise.controller;
+import com.katu4a.cladbise.util.BackendProvider;
 
-import com.arnor4eck.util.enums.RequestStatus;
+import com.katu4a.cladbise.util.RequestStatus;
 import com.katu4a.cladbise.model.RequestRow;
 import com.katu4a.cladbise.service.RequestService;
 import com.katu4a.cladbise.util.AlertHelper;
@@ -28,21 +29,21 @@ import java.util.List;
 public class RequestsTabController {
 
     @FXML private TableView<RequestRow> requestsTable;
-    @FXML private TableColumn<RequestRow, Integer> colId;
+    @FXML private TableColumn<RequestRow, java.util.UUID> colId;
     @FXML private TableColumn<RequestRow, String> colDeceased;
     @FXML private TableColumn<RequestRow, String> colCustomer;
     @FXML private TableColumn<RequestRow, String> colPlot;
     @FXML private TableColumn<RequestRow, String> colEmployee;
     @FXML private TableColumn<RequestRow, String> colStatus;
     @FXML private TableColumn<RequestRow, String> colDate;
-    @FXML private TableColumn<RequestRow, Double> colCost;
+    @FXML private TableColumn<RequestRow, java.math.BigDecimal> colCost;
 
     @FXML private TextField txtSearch;
     @FXML private ComboBox<String> cbStatusFilter;
     @FXML private DatePicker dpDateFrom;
     @FXML private DatePicker dpDateTo;
 
-    private final RequestService requestService = new RequestService();
+    private final RequestService requestService = BackendProvider.getRequestService();
     private final ObservableList<RequestRow> masterData = FXCollections.observableArrayList();
     private FilteredList<RequestRow> filteredData;
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");

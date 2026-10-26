@@ -59,7 +59,7 @@ public class CustomerFormController implements SavableForm {
 
         String email = FormUtils.text(emailField);
         Customer customer = new Customer(
-                editing == null ? 0 : editing.id(),
+                editing == null ? null : editing.id(),
                 FormUtils.text(fullNameField),
                 FormUtils.text(phoneField),
                 email.isEmpty() ? null : email,

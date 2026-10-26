@@ -75,7 +75,7 @@ public class EmployeeFormController implements SavableForm {
         FormUtils.clearInvalid(fullNameField, roleCombo, loginField, passwordField);
 
         Employee employee = new Employee(
-                editing == null ? 0 : editing.id(),
+                editing == null ? null : editing.id(),
                 FormUtils.text(fullNameField),
                 roleCombo.getValue(),
                 FormUtils.text(loginField),

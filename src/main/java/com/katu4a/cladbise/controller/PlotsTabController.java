@@ -1,10 +1,9 @@
 package com.katu4a.cladbise.controller;
+import com.katu4a.cladbise.util.BackendProvider;
 
 import com.katu4a.cladbise.model.Plot;
 import com.katu4a.cladbise.model.Sector;
-import com.katu4a.cladbise.service.DbPlotService;
 import com.katu4a.cladbise.service.PlotService;
-import com.katu4a.cladbise.service.StubPlotService;
 import com.katu4a.cladbise.service.ValidationException;
 import com.katu4a.cladbise.util.AlertHelper;
 import com.katu4a.cladbise.util.FormDialog;
@@ -72,12 +71,12 @@ public class PlotsTabController {
     @FXML
     private CheckBox descendingCheck;
 
-    private final PlotService plotService = new DbPlotService();
+    private final PlotService plotService = BackendProvider.getPlotService();
 
     private final ObservableList<Plot> plots = FXCollections.observableArrayList();
     private final FilteredList<Plot> filteredPlots = new FilteredList<>(plots);
     private final SortedList<Plot> sortedPlots = new SortedList<>(filteredPlots);
-    private final Map<Integer, String> sectorNames = new HashMap<>();
+    private final Map<java.util.UUID, String> sectorNames = new HashMap<>();
 
     @FXML
     private void initialize() {
@@ -205,7 +204,7 @@ public class PlotsTabController {
         if (status != null && plot.status() != status) {
             return false;
         }
-        if (sector != null && plot.sectorId() != sector.id()) {
+        if (sector != null && !plot.sectorId().equals(sector.id())) {
             return false;
         }
         if (query.isEmpty()) {
@@ -262,7 +261,7 @@ public class PlotsTabController {
             sectorFilter.setItems(FXCollections.observableArrayList(sectors));
             if (previous != null) {
                 sectors.stream()
-                        .filter(sector -> sector.id() == previous.id())
+                        .filter(sector -> sector.id().equals(previous.id()))
                         .findFirst()
                         .ifPresent(sectorFilter::setValue);
             }

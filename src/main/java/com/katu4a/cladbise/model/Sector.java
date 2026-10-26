@@ -1,9 +1,10 @@
 package com.katu4a.cladbise.model;
+import java.util.UUID;
 
 import java.time.LocalDateTime;
 
 public record Sector(
-        int id,
+        UUID id,
         String name,
         LocalDateTime createdAt
 ) implements ExportModel {

@@ -1,14 +1,16 @@
 package com.katu4a.cladbise.model;
+import java.util.UUID;
+import java.math.BigDecimal;
 
-import com.arnor4eck.util.enums.RequestStatus;
+import com.katu4a.cladbise.util.RequestStatus;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class RequestRow {
-    private int id;
-    private int customerId;
-    private int employeeId;
-    private int plotId;
+    private UUID id;
+    private UUID customerId;
+    private UUID employeeId;
+    private UUID plotId;
 
     private String customerFullName;
     private String employeeFullName;
@@ -21,21 +23,27 @@ public class RequestRow {
 
     private RequestStatus status;
     private String statusRussian;
-    private Double totalCost;
+    private BigDecimal totalCost;
     private String note;
     private LocalDateTime createdAt;
+    private LocalDateTime requestDate;
+    private LocalDateTime processedDate;
+    public LocalDateTime getRequestDate() { return requestDate; }
+    public void setRequestDate(LocalDateTime value) { requestDate = value; }
+    public LocalDateTime getProcessedDate() { return processedDate; }
+    public void setProcessedDate(LocalDateTime value) { processedDate = value; }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public UUID getId() { return id; }
+    public void setId(UUID id) { this.id = id; }
 
-    public int getCustomerId() { return customerId; }
-    public void setCustomerId(int customerId) { this.customerId = customerId; }
+    public UUID getCustomerId() { return customerId; }
+    public void setCustomerId(UUID customerId) { this.customerId = customerId; }
 
-    public int getEmployeeId() { return employeeId; }
-    public void setEmployeeId(int employeeId) { this.employeeId = employeeId; }
+    public UUID getEmployeeId() { return employeeId; }
+    public void setEmployeeId(UUID employeeId) { this.employeeId = employeeId; }
 
-    public int getPlotId() { return plotId; }
-    public void setPlotId(int plotId) { this.plotId = plotId; }
+    public UUID getPlotId() { return plotId; }
+    public void setPlotId(UUID plotId) { this.plotId = plotId; }
 
     public String getCustomerFullName() { return customerFullName; }
     public void setCustomerFullName(String customerFullName) { this.customerFullName = customerFullName; }
@@ -66,8 +74,8 @@ public class RequestRow {
 
     public String getStatusRussian() { return statusRussian; }
 
-    public Double getTotalCost() { return totalCost; }
-    public void setTotalCost(Double totalCost) { this.totalCost = totalCost; }
+    public BigDecimal getTotalCost() { return totalCost; }
+    public void setTotalCost(BigDecimal totalCost) { this.totalCost = totalCost; }
 
     public String getNote() { return note; }
     public void setNote(String note) { this.note = note; }

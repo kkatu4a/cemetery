@@ -4,6 +4,7 @@ import com.katu4a.cladbise.model.Plot;
 import com.katu4a.cladbise.model.Sector;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface PlotService {
 
@@ -15,5 +16,5 @@ public interface PlotService {
 
     Plot update(Plot plot);
 
-    void delete(int id);
+    void delete(UUID id);
 }

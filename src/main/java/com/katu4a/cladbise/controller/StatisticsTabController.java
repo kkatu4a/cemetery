@@ -1,4 +1,5 @@
 package com.katu4a.cladbise.controller;
+import com.katu4a.cladbise.util.BackendProvider;
 
 import com.katu4a.cladbise.model.StatisticsData;
 import com.katu4a.cladbise.service.RequestService;
@@ -23,7 +24,7 @@ public class StatisticsTabController {
     @FXML private PieChart pieChartRequests;
     @FXML private PieChart pieChartPlots;
 
-    private final RequestService requestService = new RequestService();
+    private final RequestService requestService = BackendProvider.getRequestService();
 
     @FXML
     public void initialize() {
